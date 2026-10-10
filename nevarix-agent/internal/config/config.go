@@ -8,11 +8,13 @@ import (
 )
 
 type Config struct {
-	APIURL           string
-	AgentToken       string
-	AgentID          string
-	Hostname         string
-	CollectInterval  time.Duration
+	HubURL          string
+	AgentToken      string
+	AgentID         string
+	Hostname        string
+	CollectInterval time.Duration
+	ListenAddr      string
+	OutboxPath      string
 }
 
 func Load() Config {
@@ -25,11 +27,13 @@ func Load() Config {
 		agentID = hostname
 	}
 	return Config{
-		APIURL:          strings.TrimRight(getenv("NEVARIX_API_URL", "http://127.0.0.1:8090"), "/"),
+		HubURL:          strings.TrimRight(getenv("NEVARIX_HUB_URL", "http://127.0.0.1:8091"), "/"),
 		AgentToken:      getenv("NEVARIX_AGENT_TOKEN", ""),
 		AgentID:         agentID,
 		Hostname:        hostname,
 		CollectInterval: time.Duration(getenvInt("COLLECT_INTERVAL_SECONDS", 5)) * time.Second,
+		ListenAddr:      getenv("NEVARIX_LISTEN_ADDR", ":9000"),
+		OutboxPath:      getenv("NEVARIX_OUTBOX_PATH", "data/agent-outbox.db"),
 	}
 }
 
