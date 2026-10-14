@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ArminDashti/nevarix-agent/internal/inventory"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -26,19 +27,20 @@ type DiskSample struct {
 }
 
 type Snapshot struct {
-	AgentID              string       `json:"agentId"`
-	Hostname             string       `json:"hostname"`
-	CPUPercent           float64      `json:"cpuPercent"`
-	Cores                []CoreSample `json:"cores"`
-	MemoryTotalBytes     uint64       `json:"memoryTotalBytes"`
-	MemoryUsedBytes      uint64       `json:"memoryUsedBytes"`
-	MemoryAvailableBytes uint64       `json:"memoryAvailableBytes"`
-	MemoryUsedPercent    float64      `json:"memoryUsedPercent"`
-	Disks                []DiskSample `json:"disks"`
-	BandwidthRxBps       float64      `json:"bandwidthRxBps"`
-	BandwidthTxBps       float64      `json:"bandwidthTxBps"`
-	UptimeSeconds        uint64       `json:"uptimeSeconds"`
-	CollectedAt          time.Time    `json:"collectedAt"`
+	AgentID              string           `json:"agentId"`
+	Hostname             string           `json:"hostname"`
+	CPUPercent           float64          `json:"cpuPercent"`
+	Cores                []CoreSample     `json:"cores"`
+	MemoryTotalBytes     uint64           `json:"memoryTotalBytes"`
+	MemoryUsedBytes      uint64           `json:"memoryUsedBytes"`
+	MemoryAvailableBytes uint64           `json:"memoryAvailableBytes"`
+	MemoryUsedPercent    float64          `json:"memoryUsedPercent"`
+	Disks                []DiskSample     `json:"disks"`
+	BandwidthRxBps       float64          `json:"bandwidthRxBps"`
+	BandwidthTxBps       float64          `json:"bandwidthTxBps"`
+	UptimeSeconds        uint64           `json:"uptimeSeconds"`
+	System               inventory.System `json:"system"`
+	CollectedAt          time.Time        `json:"collectedAt"`
 }
 
 type Collector struct {
@@ -48,10 +50,11 @@ type Collector struct {
 	lastNet    net.IOCountersStat
 	lastNetAt  time.Time
 	hasLastNet bool
+	inv        *inventory.Collector
 }
 
 func New(agentID, hostname string) *Collector {
-	return &Collector{agentID: agentID, hostname: hostname}
+	return &Collector{agentID: agentID, hostname: hostname, inv: inventory.New()}
 }
 
 func (c *Collector) Collect() (Snapshot, error) {
@@ -120,6 +123,7 @@ func (c *Collector) Collect() (Snapshot, error) {
 		BandwidthRxBps:       rx,
 		BandwidthTxBps:       tx,
 		UptimeSeconds:        uptime,
+		System:               c.inv.Collect(),
 		CollectedAt:          now,
 	}, nil
 }
