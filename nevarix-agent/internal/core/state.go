@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/ArminDashti/nevarix-agent/internal/paths"
 )
 
 // Address is one nevarix-core endpoint saved under an alias.
@@ -24,12 +26,12 @@ type State struct {
 	Addresses map[string]Address `json:"addresses"`
 }
 
-// StatePath returns NEVARIX_CORE_STATE_PATH or the default data file.
+// StatePath returns NEVARIX_CORE_STATE_PATH or core-state.json inside paths.DataDir().
 func StatePath() string {
 	if p := strings.TrimSpace(os.Getenv("NEVARIX_CORE_STATE_PATH")); p != "" {
 		return p
 	}
-	return filepath.Join("data", "core-state.json")
+	return filepath.Join(paths.DataDir(), "core-state.json")
 }
 
 // Load reads state; a missing file is an empty state, not an error.

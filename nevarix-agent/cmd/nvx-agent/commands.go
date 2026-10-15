@@ -7,11 +7,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/ArminDashti/nevarix-agent/internal/core"
+	"github.com/ArminDashti/nevarix-agent/internal/paths"
 	"github.com/ArminDashti/nevarix-agent/internal/service"
 )
 
@@ -24,6 +24,7 @@ func cmdHelp(_ []string) error {
   service status | stop | restart | start
   help
   version
+  install
   update
   uninstall
   rebuild
@@ -94,8 +95,8 @@ func cmdUninstall(_ []string) error {
 	if err := service.Delete(); err != nil {
 		return err
 	}
-	// Removes the agent data directory (outbox, core state). The binary is left in place.
-	return os.RemoveAll(filepath.Dir(core.StatePath()))
+	// Removes the agent data directory (outbox, core state). The binary is left in place: it is the running file.
+	return os.RemoveAll(paths.DataDir())
 }
 
 func cmdAddressSet(args []string) error {

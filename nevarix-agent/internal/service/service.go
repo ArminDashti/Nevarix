@@ -13,6 +13,16 @@ const Name = "NevarixAgent"
 func Start() error  { return run("start") }
 func Stop() error   { return run("stop") }
 func Delete() error { return run("delete") }
+
+// Create registers the service to run binPath automatically at boot.
+func Create(binPath string) error {
+	out, err := exec.Command("sc.exe", "create", Name, "binPath=", binPath, "start=", "auto").CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("sc create %s: %w: %s", Name, err, strings.TrimSpace(string(out)))
+	}
+	fmt.Println(strings.TrimSpace(string(out)))
+	return nil
+}
 func Restart() error {
 	_ = Stop() // ponytail: ignores stop error when already stopped; upgrade to query state first
 	return Start()

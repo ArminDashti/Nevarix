@@ -122,3 +122,16 @@ unverified) or skip it. This keeps confident guesses out.
 <!-- When no richer mechanism is available, append dated golden-path entries here.
      Format: ### YYYY-MM-DD — <title>  /  **Goal**, **Steps**, **Gotchas**,
      **What didn't work**. Keep secrets out — point to where they live. -->
+
+## Learned User Preferences
+
+- When an approved plan is attached, implement it as written: do not edit the plan file, and work through the existing to-dos in order, marking each in_progress then completed instead of recreating them.
+- When given a bare list of CLI commands with no request, ask what to do (build, locate, run, or document) before planning or coding.
+- Remove superseded folders and files completely when the user says the old layout is not needed; do not leave dead subfolders behind.
+
+## Learned Workspace Facts
+
+- The management dashboard folder is spelled `nevarix-managment` (sic); use that spelling in paths. It is flat: `src/`, `public/`, `package.json`, `vite.config.ts`, `dockerfile`, and `docker-compose.yml` sit directly in it. The former `nevarix-managment-api` and `nevarix-managment-webui` subfolders were removed.
+- `nevarix-core/docker-compose.local.yml` mounts `../nevarix-managment:/app` for the dashboard.
+- Storage split: Agent and Managment use SQLite; Hub uses PostgreSQL. Agent SQLite only buffers placeholder data until the Hub confirms it is stored.
+- `nevarix-agent` (Go, under `nevarix/nevarix-agent`) has no CLI subcommands. It is configured only by environment variables: `NEVARIX_API_URL`, `NEVARIX_AGENT_TOKEN` (required, value never stored in docs), `NEVARIX_AGENT_ID`, `NEVARIX_HOSTNAME`, `COLLECT_INTERVAL_SECONDS`.

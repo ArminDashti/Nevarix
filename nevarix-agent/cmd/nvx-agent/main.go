@@ -27,6 +27,7 @@ var commands = map[string]command{
 	"help":                 {0, cmdHelp},
 	"version":              {0, cmdVersion},
 	"update":               {0, cmdUpdate},
+	"install":              {0, cmdInstall},
 	"uninstall":            {0, cmdUninstall},
 	"rebuild":              {0, cmdRebuild},
 	"core address set":     {1, cmdAddressSet},

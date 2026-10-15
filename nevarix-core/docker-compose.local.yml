@@ -94,7 +94,7 @@ services:
       - -c
       - rm -rf /app/node_modules/* /app/node_modules/.[!.]* 2>/dev/null; npm install && npm run dev -- --host 0.0.0.0 --port 5173 --strictPort
     volumes:
-      - ../nevarix-managment/nevarix-managment-webui:/app
+      - ../nevarix-managment:/app
       - nevarix-webui-node-modules:/app/node_modules
     ports:
       - "5183:5173"
