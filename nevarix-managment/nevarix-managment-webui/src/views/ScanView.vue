@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { hub, type ScanHit } from '@/api/client'
+import { core, type ScanHit } from '@/api/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
@@ -15,7 +15,7 @@ const added = ref<Set<string>>(new Set())
 
 onMounted(async () => {
   try {
-    const s = await hub.settings()
+    const s = await core.settings()
     cidr.value = s.defaultCidr
     port.value = s.agentPort
     timeoutMs.value = s.timeoutMs
@@ -29,7 +29,7 @@ async function startScan() {
   error.value = ''
   hits.value = []
   try {
-    const res = await hub.scan({ cidr: cidr.value, port: port.value, timeoutMs: timeoutMs.value })
+    const res = await core.scan({ cidr: cidr.value, port: port.value, timeoutMs: timeoutMs.value })
     scanned.value = res.scanned
     hits.value = res.hits
   } catch (e) {
@@ -41,7 +41,7 @@ async function startScan() {
 
 async function addHit(hit: ScanHit) {
   try {
-    await hub.addEndpoint(hit.ip, hit.hostname)
+    await core.addEndpoint(hit.ip, hit.hostname)
     added.value = new Set([...added.value, hit.ip])
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to add endpoint'

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// Identity is what nevarix-hub reads from /health to confirm a host runs this agent.
+// Identity is what nevarix-core reads from /health to confirm a host runs this agent.
 type Identity struct {
 	Agent    string `json:"agent"`
 	AgentID  string `json:"agentId"`

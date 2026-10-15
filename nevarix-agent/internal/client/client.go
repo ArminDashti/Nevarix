@@ -25,7 +25,7 @@ func New(baseURL, token string) *Client {
 	}
 }
 
-// PostMetrics sends one queued snapshot to the Hub. Only a 2xx means the Hub committed it.
+// PostMetrics sends one queued snapshot to Core. Only a 2xx means Core committed it.
 func (c *Client) PostMetrics(ctx context.Context, body []byte) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/api/v1/ingest/metrics", bytes.NewReader(body))
 	if err != nil {

@@ -1,4 +1,4 @@
-// Package outbox keeps collected snapshots in SQLite until the Hub acknowledges them.
+// Package outbox keeps collected snapshots in SQLite until Core acknowledges them.
 package outbox
 
 import (
@@ -70,7 +70,7 @@ func (s *Store) Pending(ctx context.Context, limit int) ([]Item, error) {
 	return out, rows.Err()
 }
 
-// Ack removes an item only after the Hub confirmed it is stored.
+// Ack removes an item only after Core confirmed it is stored.
 func (s *Store) Ack(ctx context.Context, id int64) error {
 	_, err := s.db.ExecContext(ctx, `DELETE FROM outbox WHERE id = ?`, id)
 	return err

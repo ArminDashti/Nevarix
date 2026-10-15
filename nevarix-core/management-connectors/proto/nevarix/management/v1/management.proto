@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package nevarix.management.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/ArminDashti/nevarix-core/management-connectors/pb/nevarix/management/v1;managementv1";
+
+// ManagementService is the gRPC face of the management panel API (same operations as REST).
+service ManagementService {
+  rpc Health(HealthRequest) returns (HealthResponse);
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse);
+  rpc ListEndpoints(ListEndpointsRequest) returns (ListEndpointsResponse);
+  rpc AddEndpoint(AddEndpointRequest) returns (AddEndpointResponse);
+  rpc Scan(ScanRequest) returns (ScanResponse);
+  rpc GetSettings(GetSettingsRequest) returns (Settings);
+  rpc UpdateSettings(Settings) returns (Settings);
+  rpc ListSoftEtherUsers(ListSoftEtherUsersRequest) returns (ListSoftEtherUsersResponse);
+  rpc ListSoftEtherUserSessions(ListSoftEtherUserSessionsRequest) returns (ListSoftEtherUserSessionsResponse);
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string status = 1;
+}
+
+message ListAgentsRequest {}
+
+message ListAgentsResponse {
+  repeated AgentSummary agents = 1;
+}
+
+message AgentSummary {
+  string agent_id = 1;
+  string hostname = 2;
+  double cpu_percent = 3;
+  double memory_used_percent = 4;
+  google.protobuf.Timestamp last_seen_at = 5;
+}
+
+message ListEndpointsRequest {}
+
+message ListEndpointsResponse {
+  repeated Endpoint endpoints = 1;
+}
+
+message Endpoint {
+  string ip = 1;
+  string hostname = 2;
+  string source = 3;
+  optional google.protobuf.Timestamp last_seen_at = 4;
+}
+
+message AddEndpointRequest {
+  string ip = 1;
+  string hostname = 2;
+}
+
+message AddEndpointResponse {
+  string status = 1;
+}
+
+message ScanRequest {
+  string cidr = 1;
+  int32 port = 2;
+  int32 timeout_ms = 3;
+}
+
+message ScanResponse {
+  int32 scanned = 1;
+  repeated ScanHit hits = 2;
+}
+
+message ScanHit {
+  string ip = 1;
+  int32 port = 2;
+  string agent_id = 3;
+  string hostname = 4;
+}
+
+message GetSettingsRequest {}
+
+message Settings {
+  string default_cidr = 1;
+  int32 agent_port = 2;
+  int32 timeout_ms = 3;
+}
+
+message ListSoftEtherUsersRequest {}
+
+message ListSoftEtherUsersResponse {
+  repeated SoftEtherUser users = 1;
+}
+
+message SoftEtherUser {
+  string username = 1;
+  string client_ip = 2;
+  optional string asn = 3;
+  uint64 download_bytes = 4;
+  uint64 upload_bytes = 5;
+  int64 usage_duration_seconds = 6;
+}
+
+message ListSoftEtherUserSessionsRequest {
+  string username = 1;
+}
+
+message ListSoftEtherUserSessionsResponse {
+  repeated SoftEtherSession sessions = 1;
+}
+
+message SoftEtherSession {
+  google.protobuf.Timestamp connected_at = 1;
+  optional google.protobuf.Timestamp disconnected_at = 2;
+  string client_ip = 3;
+  optional string asn = 4;
+  uint64 download_bytes = 5;
+  uint64 upload_bytes = 6;
+  int64 duration_seconds = 7;
+}

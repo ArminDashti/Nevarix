@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package nevarix.agent.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/ArminDashti/nevarix-core/agent-connectors/pb/nevarix/agent/v1;agentv1";
+
+// AgentService is the write path nevarix-agent uses to push host snapshots.
+service AgentService {
+  // IngestMetrics returns OK only after the snapshot is committed, so the agent can drop its outbox row.
+  rpc IngestMetrics(AgentSnapshot) returns (IngestAck);
+}
+
+message AgentSnapshot {
+  string agent_id = 1;
+  string hostname = 2;
+  double cpu_percent = 3;
+  repeated CoreSample cores = 4;
+  uint64 memory_total_bytes = 5;
+  uint64 memory_used_bytes = 6;
+  uint64 memory_available_bytes = 7;
+  double memory_used_percent = 8;
+  repeated DiskSample disks = 9;
+  double bandwidth_rx_bps = 10;
+  double bandwidth_tx_bps = 11;
+  uint64 uptime_seconds = 12;
+  string system_json = 13;
+  google.protobuf.Timestamp collected_at = 14;
+}
+
+message CoreSample {
+  int32 core_index = 1;
+  double usage_percent = 2;
+}
+
+message DiskSample {
+  string mount_point = 1;
+  string fstype = 2;
+  uint64 total_bytes = 3;
+  uint64 used_bytes = 4;
+  uint64 free_bytes = 5;
+  double used_percent = 6;
+}
+
+message IngestAck {
+  string status = 1;
+}

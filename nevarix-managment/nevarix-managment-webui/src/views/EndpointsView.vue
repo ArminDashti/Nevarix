@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { hub, type HubEndpoint } from '@/api/client'
+import { core, type CoreEndpoint } from '@/api/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
-const endpoints = ref<HubEndpoint[]>([])
+const endpoints = ref<CoreEndpoint[]>([])
 const error = ref('')
 let timer: number | undefined
 
 async function load() {
   try {
-    const res = await hub.endpoints()
+    const res = await core.endpoints()
     endpoints.value = res.endpoints
     error.value = res.agentError ?? ''
   } catch (e) {

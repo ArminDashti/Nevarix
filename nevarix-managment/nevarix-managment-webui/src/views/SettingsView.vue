@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { hub, type HubSettings } from '@/api/client'
+import { core, type CoreSettings } from '@/api/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const settings = ref<HubSettings>({ defaultCidr: '', agentPort: 9000, timeoutMs: 500 })
+const settings = ref<CoreSettings>({ defaultCidr: '', agentPort: 9000, timeoutMs: 500 })
 const status = ref('')
 const error = ref('')
 
 onMounted(async () => {
   try {
-    settings.value = await hub.settings()
+    settings.value = await core.settings()
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to load settings'
   }
@@ -19,7 +19,7 @@ async function save() {
   error.value = ''
   status.value = ''
   try {
-    settings.value = await hub.saveSettings(settings.value)
+    settings.value = await core.saveSettings(settings.value)
     status.value = 'Saved'
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to save'
@@ -53,7 +53,7 @@ async function save() {
     </Card>
     <Card>
       <CardHeader><CardTitle>Connection</CardTitle></CardHeader>
-      <CardContent class="text-sm">Hub API: {{ hub.url }}</CardContent>
+      <CardContent class="text-sm">Core API: {{ core.url }}</CardContent>
     </Card>
   </div>
 </template>

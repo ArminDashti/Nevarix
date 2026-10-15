@@ -36,7 +36,7 @@ func main() {
 	defer box.Close()
 
 	col := collector.New(cfg.AgentID, cfg.Hostname)
-	api := client.New(cfg.HubURL, cfg.AgentToken)
+	api := client.New(cfg.CoreURL, cfg.AgentToken)
 
 	go func() {
 		id := health.Identity{Agent: "nevarix-agent", AgentID: cfg.AgentID, Hostname: cfg.Hostname}
@@ -45,8 +45,8 @@ func main() {
 		}
 	}()
 
-	log.Printf("nevarix-agent starting agentId=%s hostname=%s hub=%s interval=%s outbox=%s (timestamps UTC)",
-		cfg.AgentID, cfg.Hostname, cfg.HubURL, cfg.CollectInterval, cfg.OutboxPath)
+	log.Printf("nevarix-agent starting agentId=%s hostname=%s core=%s interval=%s outbox=%s (timestamps UTC)",
+		cfg.AgentID, cfg.Hostname, cfg.CoreURL, cfg.CollectInterval, cfg.OutboxPath)
 
 	// Resend anything left from a previous run before collecting new data.
 	if err := flush(ctx, box, api); err != nil {
@@ -72,7 +72,7 @@ func main() {
 	}
 }
 
-// collectAndQueue writes the snapshot to SQLite first, so a crash or Hub outage cannot drop it.
+// collectAndQueue writes the snapshot to SQLite first, so a crash or Core outage cannot drop it.
 func collectAndQueue(col *collector.Collector, box *outbox.Store) error {
 	snap, err := col.Collect()
 	if err != nil {
@@ -85,8 +85,8 @@ func collectAndQueue(col *collector.Collector, box *outbox.Store) error {
 	return box.Enqueue(context.Background(), body)
 }
 
-// flush sends queued snapshots oldest first and deletes each row only after the Hub acks it.
-// It stops at the first failure so the Hub receives snapshots in order.
+// flush sends queued snapshots oldest first and deletes each row only after Core acks it.
+// It stops at the first failure so Core receives snapshots in order.
 func flush(ctx context.Context, box *outbox.Store, api *client.Client) error {
 	items, err := box.Pending(ctx, flushBatch)
 	if err != nil {

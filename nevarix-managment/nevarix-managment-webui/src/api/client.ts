@@ -34,11 +34,11 @@ export type SystemInfo = {
   temperatures: { sensor: string; celsius: number }[]
 }
 
-// nevarix-hub owns endpoints, scan and settings. The webui talks only to the hub.
-const HUB_URL = (import.meta.env.VITE_HUB_URL || 'http://127.0.0.1:8091').replace(/\/$/, '')
+// nevarix-core owns endpoints, scan and settings. The webui talks only to core.
+const CORE_URL = (import.meta.env.VITE_CORE_URL || 'http://127.0.0.1:8090').replace(/\/$/, '')
 
-async function hubJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${HUB_URL}${path}`, {
+async function coreJson<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${CORE_URL}${path}`, {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
@@ -49,19 +49,19 @@ async function hubJson<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T
 }
 
-export const hub = {
-  url: HUB_URL,
-  endpoints: () => hubJson<{ endpoints: HubEndpoint[]; agentError?: string }>('/api/v1/endpoints'),
+export const core = {
+  url: CORE_URL,
+  endpoints: () => coreJson<{ endpoints: CoreEndpoint[]; agentError?: string }>('/api/v1/endpoints'),
   addEndpoint: (ip: string, hostname: string) =>
-    hubJson<{ status: string }>('/api/v1/endpoints', { method: 'POST', body: JSON.stringify({ ip, hostname }) }),
+    coreJson<{ status: string }>('/api/v1/endpoints', { method: 'POST', body: JSON.stringify({ ip, hostname }) }),
   scan: (body: { cidr: string; port: number; timeoutMs: number }) =>
-    hubJson<{ scanned: number; hits: ScanHit[] }>('/api/v1/scan', { method: 'POST', body: JSON.stringify(body) }),
-  settings: () => hubJson<HubSettings>('/api/v1/settings'),
-  saveSettings: (settings: HubSettings) =>
-    hubJson<HubSettings>('/api/v1/settings', { method: 'PUT', body: JSON.stringify(settings) }),
+    coreJson<{ scanned: number; hits: ScanHit[] }>('/api/v1/scan', { method: 'POST', body: JSON.stringify(body) }),
+  settings: () => coreJson<CoreSettings>('/api/v1/settings'),
+  saveSettings: (settings: CoreSettings) =>
+    coreJson<CoreSettings>('/api/v1/settings', { method: 'PUT', body: JSON.stringify(settings) }),
 }
 
-export type HubEndpoint = {
+export type CoreEndpoint = {
   ip?: string
   hostname: string
   source: 'scan' | 'agent'
@@ -70,7 +70,7 @@ export type HubEndpoint = {
 
 export type ScanHit = { ip: string; port: number; agentId: string; hostname: string }
 
-export type HubSettings = {
+export type CoreSettings = {
   defaultCidr: string
   agentPort: number
   timeoutMs: number

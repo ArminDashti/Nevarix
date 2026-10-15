@@ -11,7 +11,7 @@ FROM alpine:3.20
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
 COPY --from=build /out/agent /app/agent
-ENV NEVARIX_API_URL=http://nevarix-api:8090 \
+ENV NEVARIX_CORE_URL=http://nevarix-core:8090 \
     NEVARIX_AGENT_ID=nevarix-agent \
     NEVARIX_HOSTNAME=nevarix-agent \
     COLLECT_INTERVAL_SECONDS=5
