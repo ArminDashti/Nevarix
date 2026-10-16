@@ -40,7 +40,15 @@ const usage = `Usage: nvx-core <command>
   secret-key show
   management list
   stats
-  stats reset`
+  stats reset
+  app status
+  app version
+  app run [--port=N]
+  app stop
+  app port [--port=N]
+  app update
+  app rebuild [--mode=docker|native] [--remove-data=no|yes] [-y]
+  app uninstall [-y]`
 
 func cmdHelp(_ []string) error {
 	fmt.Println(usage)

@@ -3,10 +3,17 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "bin": {
+    "nvx-mng": "./bin/nvx-mng.mjs"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node test/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.6",

@@ -15,6 +15,9 @@ func TestRouteWhitelist(t *testing.T) {
 		{"management", "list"},
 		{"stats", "reset"},
 		{"install"},
+		{"app", "status"},
+		{"app", "run", "--port=8181"},
+		{"app", "rebuild", "--remove-data=yes", "-y"},
 	}
 	for _, args := range ok {
 		if _, _, found := route(args); !found {
@@ -33,7 +36,7 @@ func TestRouteWhitelist(t *testing.T) {
 			t.Fatalf("non-whitelisted command accepted: %v", args)
 		}
 	}
-	if len(commands) != 21 {
-		t.Fatalf("expected 21 commands, got %d", len(commands))
+	if len(commands) != 29 {
+		t.Fatalf("expected 29 commands, got %d", len(commands))
 	}
 }

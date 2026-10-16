@@ -38,7 +38,15 @@ func cmdHelp(_ []string) error {
   core address update <alias>
   core scan
   core secret-key show
-  core stats`)
+  core stats
+  app status
+  app version
+  app run [--port=N]
+  app stop
+  app port [--port=N]
+  app update
+  app rebuild [--mode=docker|native] [--remove-data=no|yes] [-y]
+  app uninstall [-y]`)
 	return nil
 }
 

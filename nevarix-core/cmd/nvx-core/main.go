@@ -40,6 +40,14 @@ var commands = map[string]command{
 	"management list":     {0, cmdManagementList},
 	"stats":               {0, cmdStats},
 	"stats reset":         {0, cmdStatsReset},
+	"app status":          {0, coreApp.Status},
+	"app version":         {0, coreApp.Version},
+	"app run":             {-1, coreApp.Run},
+	"app stop":            {0, coreApp.Stop},
+	"app port":            {-1, coreApp.Port},
+	"app update":          {0, coreApp.Update},
+	"app rebuild":         {-1, coreApp.Rebuild},
+	"app uninstall":       {-1, coreApp.Uninstall},
 }
 
 // route returns the longest whitelisted phrase that prefixes args, plus the remaining args.

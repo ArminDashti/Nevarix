@@ -13,7 +13,7 @@ var version = "dev"
 type handler func(args []string) error
 
 type command struct {
-	argc int // positional args after the phrase
+	argc int // positional args after the phrase; -1 = handler parses its own flags
 	run  handler
 }
 
@@ -41,18 +41,34 @@ var commands = map[string]command{
 	"core scan":            {0, cmdCoreScan},
 	"core secret-key show": {0, cmdSecretKeyShow},
 	"core stats":           {0, cmdCoreStats},
+	"app status":           {0, agentApp.Status},
+	"app version":          {0, agentApp.Version},
+	"app run":              {-1, agentApp.Run},
+	"app stop":             {0, agentApp.Stop},
+	"app port":             {-1, agentApp.Port},
+	"app update":           {0, agentApp.Update},
+	"app rebuild":          {-1, agentApp.Rebuild},
+	"app uninstall":        {-1, agentApp.Uninstall},
 }
 
-// route returns the whitelisted command whose phrase and arg count match args exactly.
+// route returns the longest whitelisted phrase that prefixes args, plus the remaining args.
 func route(args []string) (command, []string, bool) {
+	var best command
+	var rest []string
+	bestLen := 0
+	found := false
 	for phrase, cmd := range commands {
 		words := strings.Fields(phrase)
-		if len(args) != len(words)+cmd.argc || !slices.Equal(args[:len(words)], words) {
+		if len(words) <= bestLen || len(args) < len(words) || !slices.Equal(args[:len(words)], words) {
 			continue
 		}
-		return cmd, args[len(words):], true
+		remaining := args[len(words):]
+		if cmd.argc >= 0 && len(remaining) != cmd.argc {
+			continue
+		}
+		best, rest, bestLen, found = cmd, remaining, len(words), true
 	}
-	return command{}, nil, false
+	return best, rest, found
 }
 
 func main() {

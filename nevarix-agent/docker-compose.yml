@@ -6,8 +6,8 @@ services:
     container_name: nevarix-agent
     restart: "no"
     environment:
-       NEVARIX_CORE_URL: ${NEVARIX_CORE_URL:-http://nevarix-core:8090}
-       NEVARIX_OUTBOX_PATH: /app/data/agent-outbox.db
+      NEVARIX_CORE_URL: ${NEVARIX_CORE_URL:-http://nevarix-core:8090}
+      NEVARIX_OUTBOX_PATH: /app/data/agent-outbox.db
       NEVARIX_AGENT_TOKEN: ${NEVARIX_AGENT_TOKEN:-change-me}
       NEVARIX_AGENT_ID: ${NEVARIX_AGENT_ID:-nevarix-agent}
       NEVARIX_HOSTNAME: ${NEVARIX_HOSTNAME:-nevarix-agent}
