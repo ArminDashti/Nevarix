@@ -19,9 +19,22 @@ services:
     networks:
       - app_net
 
-  nevarix-core:
+  nevarix-core-pgsql:
+    image: postgres:16-alpine
+    container_name: nevarix-core-pgsql
+    restart: "no"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nevarix}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in the environment or .env}
+      POSTGRES_DB: ${POSTGRES_DB:-nevarix}
+    volumes:
+      - nevarix-core-pgsql-data:/var/lib/postgresql/data
+    networks:
+      - app_net
+
+  nevarix-core-api:
     image: ${IMAGE_TAG:-nevarix-core:latest}
-    container_name: nevarix-core
+    container_name: nevarix-core-api
     restart: "no"
     environment:
       HTTP_ADDR: "0.0.0.0:${INTERNAL_PORT:-8090}"
@@ -50,6 +63,8 @@ services:
     depends_on:
       softether:
         condition: service_started
+      nevarix-core-pgsql:
+        condition: service_started
     networks:
       - app_net
 
@@ -61,3 +76,5 @@ networks:
 volumes:
   nevarix-softether-data:
     name: nevarix-softether-data
+  nevarix-core-pgsql-data:
+    name: nevarix-core-pgsql-data

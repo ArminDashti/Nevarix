@@ -1,9 +1,9 @@
 name: nevarix
 
 services:
-  nevarix-webui:
+  nevarix-managment-webui:
     image: ${IMAGE_TAG:-nevarix-webui:latest}
-    container_name: nevarix-webui
+    container_name: nevarix-managment-webui
     restart: "no"
     expose:
       - "${INTERNAL_PORT:-80}"
