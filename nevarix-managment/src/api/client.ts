@@ -34,11 +34,15 @@ export type SystemInfo = {
   temperatures: { sensor: string; celsius: number }[]
 }
 
-// nevarix-core owns endpoints, scan and settings. The webui talks only to core.
-const CORE_URL = (import.meta.env.VITE_CORE_URL || 'http://127.0.0.1:8090').replace(/\/$/, '')
+// nevarix-core panel routes live on the same /api/v1 prefix as metrics (Vite/nginx proxy in dev).
+function coreUrl(path: string): string {
+  const direct = (import.meta.env.VITE_CORE_URL || '').replace(/\/$/, '')
+  if (direct) return `${direct}${path}`
+  return withBase(path)
+}
 
 async function coreJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${CORE_URL}${path}`, {
+  const res = await fetch(coreUrl(path), {
     ...init,
     headers: { 'Content-Type': 'application/json', ...init?.headers },
   })
@@ -50,7 +54,7 @@ async function coreJson<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const core = {
-  url: CORE_URL,
+  url: coreUrl('/api/v1'),
   endpoints: () => coreJson<{ endpoints: CoreEndpoint[]; agentError?: string }>('/api/v1/endpoints'),
   addEndpoint: (ip: string, hostname: string) =>
     coreJson<{ status: string }>('/api/v1/endpoints', { method: 'POST', body: JSON.stringify({ ip, hostname }) }),

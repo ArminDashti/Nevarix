@@ -5,6 +5,7 @@ import (
 	"embed"
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -40,12 +41,26 @@ func (s *Store) Close() {
 }
 
 func (s *Store) migrate(ctx context.Context) error {
-	sqlBytes, err := migrationFS.ReadFile("migrations/001_core.sql")
+	entries, err := migrationFS.ReadDir("migrations")
 	if err != nil {
 		return err
 	}
-	if _, err := s.pool.Exec(ctx, string(sqlBytes)); err != nil {
-		return fmt.Errorf("migrate: %w", err)
+	names := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir() {
+			continue
+		}
+		names = append(names, e.Name())
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		sqlBytes, err := migrationFS.ReadFile("migrations/" + name)
+		if err != nil {
+			return err
+		}
+		if _, err := s.pool.Exec(ctx, string(sqlBytes)); err != nil {
+			return fmt.Errorf("migrate %s: %w", name, err)
+		}
 	}
 	return nil
 }

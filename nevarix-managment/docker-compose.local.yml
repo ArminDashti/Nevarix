@@ -1,0 +1,37 @@
+# Local managment stack: Vite WebUI dev server.
+# docker compose -f docker-compose.local.yml -p nevarix-managment up -d --force-recreate
+name: nevarix-managment
+services:
+  nevarix-managment-webui:
+    image: node:22-alpine
+    container_name: nevarix-managment-webui
+    restart: "no"
+    working_dir: /app
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      VITE_BASE_PATH: "/nevarix/"
+      VITE_HMR_CLIENT_PORT: "80"
+      WATCHPACK_POLLING: "true"
+      VITE_API_PROXY: http://nevarix-core-api:8090
+    command:
+      - sh
+      - -c
+      - rm -rf /app/node_modules/* /app/node_modules/.[!.]* 2>/dev/null; npm install && npm run dev -- --host 0.0.0.0 --port 5173 --strictPort
+    volumes:
+      - .:/app
+      - nevarix-webui-node-modules:/app/node_modules
+    ports:
+      - "5183:5173"
+    networks:
+      - app_net
+      - pc-armin-local
+
+volumes:
+  nevarix-webui-node-modules:
+
+networks:
+  app_net:
+    name: ${DOCKER_NETWORK:-nevarix-net}
+    external: true
+  pc-armin-local:
+    external: true

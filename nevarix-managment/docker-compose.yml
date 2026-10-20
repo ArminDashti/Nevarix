@@ -1,4 +1,4 @@
-name: nevarix
+name: nevarix-managment
 
 services:
   nevarix-managment-webui:

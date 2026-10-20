@@ -4,7 +4,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type Config struct {
@@ -14,11 +13,6 @@ type Config struct {
 	CORSOrigins          []string
 	AgentIngestToken     string
 	MetricsHistoryPoints int
-	SoftEtherContainer   string
-	SoftEtherPassword    string
-	SoftEtherHub         string
-	SoftEtherEnabled     bool
-	SoftEtherPollEvery   time.Duration
 }
 
 func Load() Config {
@@ -29,11 +23,6 @@ func Load() Config {
 		CORSOrigins:          splitCSV(getenv("CORS_ORIGINS", "http://127.0.0.1:5173,http://localhost:5173")),
 		AgentIngestToken:     getenv("AGENT_INGEST_TOKEN", ""),
 		MetricsHistoryPoints: getenvInt("METRICS_HISTORY_POINTS", 60),
-		SoftEtherContainer:   getenv("SOFTETHER_CONTAINER", "nevarix-softether"),
-		SoftEtherPassword:    getenv("SOFTETHER_PASSWORD", "nevarix"),
-		SoftEtherHub:         getenv("SOFTETHER_HUB", "DEFAULT"),
-		SoftEtherEnabled:     getenvBool("SOFTETHER_ENABLED", false),
-		SoftEtherPollEvery:   time.Duration(getenvInt("SOFTETHER_POLL_SECONDS", 30)) * time.Second,
 	}
 }
 
@@ -50,14 +39,6 @@ func getenvInt(key string, fallback int) int {
 		return fallback
 	}
 	return n
-}
-
-func getenvBool(key string, fallback bool) bool {
-	v := strings.ToLower(strings.TrimSpace(os.Getenv(key)))
-	if v == "" {
-		return fallback
-	}
-	return v == "1" || v == "true" || v == "yes"
 }
 
 func splitCSV(raw string) []string {

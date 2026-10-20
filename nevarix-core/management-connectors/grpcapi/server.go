@@ -98,48 +98,6 @@ func (s *Server) UpdateSettings(ctx context.Context, in *managementv1.Settings) 
 	return toProtoSettings(saved), nil
 }
 
-func (s *Server) ListSoftEtherUsers(ctx context.Context, _ *managementv1.ListSoftEtherUsersRequest) (*managementv1.ListSoftEtherUsersResponse, error) {
-	users, err := s.store.ListUserStats(ctx)
-	if err != nil {
-		return nil, toStatus(err)
-	}
-	out := &managementv1.ListSoftEtherUsersResponse{}
-	for _, u := range users {
-		out.Users = append(out.Users, &managementv1.SoftEtherUser{
-			Username:             u.Username,
-			ClientIp:             u.ClientIP,
-			Asn:                  u.ASN,
-			DownloadBytes:        u.DownloadBytes,
-			UploadBytes:          u.UploadBytes,
-			UsageDurationSeconds: u.UsageDurationSeconds,
-		})
-	}
-	return out, nil
-}
-
-func (s *Server) ListSoftEtherUserSessions(ctx context.Context, in *managementv1.ListSoftEtherUserSessionsRequest) (*managementv1.ListSoftEtherUserSessionsResponse, error) {
-	sessions, err := s.store.ListUserSessions(ctx, in.GetUsername())
-	if err != nil {
-		return nil, toStatus(err)
-	}
-	out := &managementv1.ListSoftEtherUserSessionsResponse{}
-	for _, l := range sessions {
-		sess := &managementv1.SoftEtherSession{
-			ConnectedAt:     timestamppb.New(l.ConnectedAt),
-			ClientIp:        l.ClientIP,
-			Asn:             l.ASN,
-			DownloadBytes:   l.DownloadBytes,
-			UploadBytes:     l.UploadBytes,
-			DurationSeconds: l.DurationSeconds,
-		}
-		if l.DisconnectedAt != nil {
-			sess.DisconnectedAt = timestamppb.New(*l.DisconnectedAt)
-		}
-		out.Sessions = append(out.Sessions, sess)
-	}
-	return out, nil
-}
-
 func toProtoSettings(st model.Settings) *managementv1.Settings {
 	return &managementv1.Settings{DefaultCidr: st.DefaultCIDR, AgentPort: int32(st.AgentPort), TimeoutMs: int32(st.TimeoutMs)}
 }

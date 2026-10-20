@@ -79,35 +79,3 @@ type Endpoint struct {
 	Hostname string    `json:"hostname"`
 	AddedAt  time.Time `json:"addedAt"`
 }
-
-// OnlineSession is one SoftEther session snapshot.
-type OnlineSession struct {
-	Username               string     `json:"username"`
-	ClientIP               string     `json:"clientIp"`
-	ASN                    *string    `json:"asn"`
-	BandwidthBps           float64    `json:"bandwidthBps"`
-	DownloadBytes          uint64     `json:"downloadBytes"`
-	UploadBytes            uint64     `json:"uploadBytes"`
-	SessionDurationSeconds int64      `json:"sessionDurationSeconds"`
-	ConnectedAt            *time.Time `json:"connectedAt"`
-	SessionKey             string     `json:"sessionKey"`
-}
-
-type UserStat struct {
-	Username             string  `json:"username"`
-	ClientIP             string  `json:"clientIp"`
-	ASN                  *string `json:"asn"`
-	DownloadBytes        uint64  `json:"downloadBytes"`
-	UploadBytes          uint64  `json:"uploadBytes"`
-	UsageDurationSeconds int64   `json:"usageDurationSeconds"`
-}
-
-type SessionLog struct {
-	ConnectedAt     time.Time  `json:"connectedAt"`
-	DisconnectedAt  *time.Time `json:"disconnectedAt"`
-	ClientIP        string     `json:"clientIp"`
-	ASN             *string    `json:"asn"`
-	DownloadBytes   uint64     `json:"downloadBytes"`
-	UploadBytes     uint64     `json:"uploadBytes"`
-	DurationSeconds int64      `json:"durationSeconds"`
-}

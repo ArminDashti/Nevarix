@@ -19,7 +19,7 @@ nevarix-core/
 │   ├── grpcapi/            # ManagementService
 │   ├── proto/              # management.proto (source of truth)
 │   └── pb/                 # generated code (buf generate)
-├── core/                   # config, model, PostgreSQL store, local metrics, Docker, SoftEther, ASN
+├── core/                   # config, model, PostgreSQL store, local metrics, Docker
 └── cmd/server/             # wires everything into one process
 ```
 

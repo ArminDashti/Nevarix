@@ -1,0 +1,36 @@
+# Local agent stack: Go Air metrics agent.
+# docker compose -f docker-compose.local.yml -p nevarix-agent up -d --force-recreate
+name: nevarix-agent
+services:
+  nevarix-agent-api:
+    image: golang:1.23-alpine
+    container_name: nevarix-agent-api
+    restart: "no"
+    working_dir: /app
+    environment:
+      NEVARIX_CORE_URL: http://nevarix-core-api:8090
+      NEVARIX_AGENT_TOKEN: change-me
+      NEVARIX_OUTBOX_PATH: /app/data/agent-outbox.db
+      NEVARIX_AGENT_ID: nevarix-local-agent
+      NEVARIX_HOSTNAME: nevarix-local
+      COLLECT_INTERVAL_SECONDS: "5"
+      GOTOOLCHAIN: auto
+    command:
+      - sh
+      - -c
+      - apk add --no-cache git gcc musl-dev && go install github.com/air-verse/air@v1.61.7 && air -c .air.toml
+    volumes:
+      - .:/app
+      - nevarix-agent-gomod:/go/pkg/mod
+      - nevarix-agent-gotmp:/app/tmp
+    networks:
+      - app_net
+
+volumes:
+  nevarix-agent-gomod:
+  nevarix-agent-gotmp:
+
+networks:
+  app_net:
+    name: ${DOCKER_NETWORK:-nevarix-net}
+    external: true

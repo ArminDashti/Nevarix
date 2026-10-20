@@ -19,15 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ManagementService_Health_FullMethodName                    = "/nevarix.management.v1.ManagementService/Health"
-	ManagementService_ListAgents_FullMethodName                = "/nevarix.management.v1.ManagementService/ListAgents"
-	ManagementService_ListEndpoints_FullMethodName             = "/nevarix.management.v1.ManagementService/ListEndpoints"
-	ManagementService_AddEndpoint_FullMethodName               = "/nevarix.management.v1.ManagementService/AddEndpoint"
-	ManagementService_Scan_FullMethodName                      = "/nevarix.management.v1.ManagementService/Scan"
-	ManagementService_GetSettings_FullMethodName               = "/nevarix.management.v1.ManagementService/GetSettings"
-	ManagementService_UpdateSettings_FullMethodName            = "/nevarix.management.v1.ManagementService/UpdateSettings"
-	ManagementService_ListSoftEtherUsers_FullMethodName        = "/nevarix.management.v1.ManagementService/ListSoftEtherUsers"
-	ManagementService_ListSoftEtherUserSessions_FullMethodName = "/nevarix.management.v1.ManagementService/ListSoftEtherUserSessions"
+	ManagementService_Health_FullMethodName         = "/nevarix.management.v1.ManagementService/Health"
+	ManagementService_ListAgents_FullMethodName     = "/nevarix.management.v1.ManagementService/ListAgents"
+	ManagementService_ListEndpoints_FullMethodName  = "/nevarix.management.v1.ManagementService/ListEndpoints"
+	ManagementService_AddEndpoint_FullMethodName    = "/nevarix.management.v1.ManagementService/AddEndpoint"
+	ManagementService_Scan_FullMethodName           = "/nevarix.management.v1.ManagementService/Scan"
+	ManagementService_GetSettings_FullMethodName    = "/nevarix.management.v1.ManagementService/GetSettings"
+	ManagementService_UpdateSettings_FullMethodName = "/nevarix.management.v1.ManagementService/UpdateSettings"
 )
 
 // ManagementServiceClient is the client API for ManagementService service.
@@ -43,8 +41,6 @@ type ManagementServiceClient interface {
 	Scan(ctx context.Context, in *ScanRequest, opts ...grpc.CallOption) (*ScanResponse, error)
 	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*Settings, error)
 	UpdateSettings(ctx context.Context, in *Settings, opts ...grpc.CallOption) (*Settings, error)
-	ListSoftEtherUsers(ctx context.Context, in *ListSoftEtherUsersRequest, opts ...grpc.CallOption) (*ListSoftEtherUsersResponse, error)
-	ListSoftEtherUserSessions(ctx context.Context, in *ListSoftEtherUserSessionsRequest, opts ...grpc.CallOption) (*ListSoftEtherUserSessionsResponse, error)
 }
 
 type managementServiceClient struct {
@@ -125,26 +121,6 @@ func (c *managementServiceClient) UpdateSettings(ctx context.Context, in *Settin
 	return out, nil
 }
 
-func (c *managementServiceClient) ListSoftEtherUsers(ctx context.Context, in *ListSoftEtherUsersRequest, opts ...grpc.CallOption) (*ListSoftEtherUsersResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListSoftEtherUsersResponse)
-	err := c.cc.Invoke(ctx, ManagementService_ListSoftEtherUsers_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *managementServiceClient) ListSoftEtherUserSessions(ctx context.Context, in *ListSoftEtherUserSessionsRequest, opts ...grpc.CallOption) (*ListSoftEtherUserSessionsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ListSoftEtherUserSessionsResponse)
-	err := c.cc.Invoke(ctx, ManagementService_ListSoftEtherUserSessions_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ManagementServiceServer is the server API for ManagementService service.
 // All implementations must embed UnimplementedManagementServiceServer
 // for forward compatibility.
@@ -158,8 +134,6 @@ type ManagementServiceServer interface {
 	Scan(context.Context, *ScanRequest) (*ScanResponse, error)
 	GetSettings(context.Context, *GetSettingsRequest) (*Settings, error)
 	UpdateSettings(context.Context, *Settings) (*Settings, error)
-	ListSoftEtherUsers(context.Context, *ListSoftEtherUsersRequest) (*ListSoftEtherUsersResponse, error)
-	ListSoftEtherUserSessions(context.Context, *ListSoftEtherUserSessionsRequest) (*ListSoftEtherUserSessionsResponse, error)
 	mustEmbedUnimplementedManagementServiceServer()
 }
 
@@ -190,12 +164,6 @@ func (UnimplementedManagementServiceServer) GetSettings(context.Context, *GetSet
 }
 func (UnimplementedManagementServiceServer) UpdateSettings(context.Context, *Settings) (*Settings, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateSettings not implemented")
-}
-func (UnimplementedManagementServiceServer) ListSoftEtherUsers(context.Context, *ListSoftEtherUsersRequest) (*ListSoftEtherUsersResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListSoftEtherUsers not implemented")
-}
-func (UnimplementedManagementServiceServer) ListSoftEtherUserSessions(context.Context, *ListSoftEtherUserSessionsRequest) (*ListSoftEtherUserSessionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ListSoftEtherUserSessions not implemented")
 }
 func (UnimplementedManagementServiceServer) mustEmbedUnimplementedManagementServiceServer() {}
 func (UnimplementedManagementServiceServer) testEmbeddedByValue()                           {}
@@ -344,42 +312,6 @@ func _ManagementService_UpdateSettings_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ManagementService_ListSoftEtherUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSoftEtherUsersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementServiceServer).ListSoftEtherUsers(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementService_ListSoftEtherUsers_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).ListSoftEtherUsers(ctx, req.(*ListSoftEtherUsersRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ManagementService_ListSoftEtherUserSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListSoftEtherUserSessionsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ManagementServiceServer).ListSoftEtherUserSessions(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ManagementService_ListSoftEtherUserSessions_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ManagementServiceServer).ListSoftEtherUserSessions(ctx, req.(*ListSoftEtherUserSessionsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ManagementService_ServiceDesc is the grpc.ServiceDesc for ManagementService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -414,14 +346,6 @@ var ManagementService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpdateSettings",
 			Handler:    _ManagementService_UpdateSettings_Handler,
-		},
-		{
-			MethodName: "ListSoftEtherUsers",
-			Handler:    _ManagementService_ListSoftEtherUsers_Handler,
-		},
-		{
-			MethodName: "ListSoftEtherUserSessions",
-			Handler:    _ManagementService_ListSoftEtherUserSessions_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

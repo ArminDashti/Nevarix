@@ -778,350 +778,6 @@ func (x *Settings) GetTimeoutMs() int32 {
 	return 0
 }
 
-type ListSoftEtherUsersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSoftEtherUsersRequest) Reset() {
-	*x = ListSoftEtherUsersRequest{}
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[15]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSoftEtherUsersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSoftEtherUsersRequest) ProtoMessage() {}
-
-func (x *ListSoftEtherUsersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[15]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSoftEtherUsersRequest.ProtoReflect.Descriptor instead.
-func (*ListSoftEtherUsersRequest) Descriptor() ([]byte, []int) {
-	return file_nevarix_management_v1_management_proto_rawDescGZIP(), []int{15}
-}
-
-type ListSoftEtherUsersResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Users         []*SoftEtherUser       `protobuf:"bytes,1,rep,name=users,proto3" json:"users,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSoftEtherUsersResponse) Reset() {
-	*x = ListSoftEtherUsersResponse{}
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSoftEtherUsersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSoftEtherUsersResponse) ProtoMessage() {}
-
-func (x *ListSoftEtherUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSoftEtherUsersResponse.ProtoReflect.Descriptor instead.
-func (*ListSoftEtherUsersResponse) Descriptor() ([]byte, []int) {
-	return file_nevarix_management_v1_management_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *ListSoftEtherUsersResponse) GetUsers() []*SoftEtherUser {
-	if x != nil {
-		return x.Users
-	}
-	return nil
-}
-
-type SoftEtherUser struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	Username             string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	ClientIp             string                 `protobuf:"bytes,2,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`
-	Asn                  *string                `protobuf:"bytes,3,opt,name=asn,proto3,oneof" json:"asn,omitempty"`
-	DownloadBytes        uint64                 `protobuf:"varint,4,opt,name=download_bytes,json=downloadBytes,proto3" json:"download_bytes,omitempty"`
-	UploadBytes          uint64                 `protobuf:"varint,5,opt,name=upload_bytes,json=uploadBytes,proto3" json:"upload_bytes,omitempty"`
-	UsageDurationSeconds int64                  `protobuf:"varint,6,opt,name=usage_duration_seconds,json=usageDurationSeconds,proto3" json:"usage_duration_seconds,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *SoftEtherUser) Reset() {
-	*x = SoftEtherUser{}
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SoftEtherUser) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SoftEtherUser) ProtoMessage() {}
-
-func (x *SoftEtherUser) ProtoReflect() protoreflect.Message {
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SoftEtherUser.ProtoReflect.Descriptor instead.
-func (*SoftEtherUser) Descriptor() ([]byte, []int) {
-	return file_nevarix_management_v1_management_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *SoftEtherUser) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-func (x *SoftEtherUser) GetClientIp() string {
-	if x != nil {
-		return x.ClientIp
-	}
-	return ""
-}
-
-func (x *SoftEtherUser) GetAsn() string {
-	if x != nil && x.Asn != nil {
-		return *x.Asn
-	}
-	return ""
-}
-
-func (x *SoftEtherUser) GetDownloadBytes() uint64 {
-	if x != nil {
-		return x.DownloadBytes
-	}
-	return 0
-}
-
-func (x *SoftEtherUser) GetUploadBytes() uint64 {
-	if x != nil {
-		return x.UploadBytes
-	}
-	return 0
-}
-
-func (x *SoftEtherUser) GetUsageDurationSeconds() int64 {
-	if x != nil {
-		return x.UsageDurationSeconds
-	}
-	return 0
-}
-
-type ListSoftEtherUserSessionsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Username      string                 `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSoftEtherUserSessionsRequest) Reset() {
-	*x = ListSoftEtherUserSessionsRequest{}
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[18]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSoftEtherUserSessionsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSoftEtherUserSessionsRequest) ProtoMessage() {}
-
-func (x *ListSoftEtherUserSessionsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[18]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSoftEtherUserSessionsRequest.ProtoReflect.Descriptor instead.
-func (*ListSoftEtherUserSessionsRequest) Descriptor() ([]byte, []int) {
-	return file_nevarix_management_v1_management_proto_rawDescGZIP(), []int{18}
-}
-
-func (x *ListSoftEtherUserSessionsRequest) GetUsername() string {
-	if x != nil {
-		return x.Username
-	}
-	return ""
-}
-
-type ListSoftEtherUserSessionsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Sessions      []*SoftEtherSession    `protobuf:"bytes,1,rep,name=sessions,proto3" json:"sessions,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ListSoftEtherUserSessionsResponse) Reset() {
-	*x = ListSoftEtherUserSessionsResponse{}
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[19]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ListSoftEtherUserSessionsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ListSoftEtherUserSessionsResponse) ProtoMessage() {}
-
-func (x *ListSoftEtherUserSessionsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[19]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ListSoftEtherUserSessionsResponse.ProtoReflect.Descriptor instead.
-func (*ListSoftEtherUserSessionsResponse) Descriptor() ([]byte, []int) {
-	return file_nevarix_management_v1_management_proto_rawDescGZIP(), []int{19}
-}
-
-func (x *ListSoftEtherUserSessionsResponse) GetSessions() []*SoftEtherSession {
-	if x != nil {
-		return x.Sessions
-	}
-	return nil
-}
-
-type SoftEtherSession struct {
-	state           protoimpl.MessageState `protogen:"open.v1"`
-	ConnectedAt     *timestamppb.Timestamp `protobuf:"bytes,1,opt,name=connected_at,json=connectedAt,proto3" json:"connected_at,omitempty"`
-	DisconnectedAt  *timestamppb.Timestamp `protobuf:"bytes,2,opt,name=disconnected_at,json=disconnectedAt,proto3,oneof" json:"disconnected_at,omitempty"`
-	ClientIp        string                 `protobuf:"bytes,3,opt,name=client_ip,json=clientIp,proto3" json:"client_ip,omitempty"`
-	Asn             *string                `protobuf:"bytes,4,opt,name=asn,proto3,oneof" json:"asn,omitempty"`
-	DownloadBytes   uint64                 `protobuf:"varint,5,opt,name=download_bytes,json=downloadBytes,proto3" json:"download_bytes,omitempty"`
-	UploadBytes     uint64                 `protobuf:"varint,6,opt,name=upload_bytes,json=uploadBytes,proto3" json:"upload_bytes,omitempty"`
-	DurationSeconds int64                  `protobuf:"varint,7,opt,name=duration_seconds,json=durationSeconds,proto3" json:"duration_seconds,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *SoftEtherSession) Reset() {
-	*x = SoftEtherSession{}
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[20]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SoftEtherSession) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SoftEtherSession) ProtoMessage() {}
-
-func (x *SoftEtherSession) ProtoReflect() protoreflect.Message {
-	mi := &file_nevarix_management_v1_management_proto_msgTypes[20]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SoftEtherSession.ProtoReflect.Descriptor instead.
-func (*SoftEtherSession) Descriptor() ([]byte, []int) {
-	return file_nevarix_management_v1_management_proto_rawDescGZIP(), []int{20}
-}
-
-func (x *SoftEtherSession) GetConnectedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.ConnectedAt
-	}
-	return nil
-}
-
-func (x *SoftEtherSession) GetDisconnectedAt() *timestamppb.Timestamp {
-	if x != nil {
-		return x.DisconnectedAt
-	}
-	return nil
-}
-
-func (x *SoftEtherSession) GetClientIp() string {
-	if x != nil {
-		return x.ClientIp
-	}
-	return ""
-}
-
-func (x *SoftEtherSession) GetAsn() string {
-	if x != nil && x.Asn != nil {
-		return *x.Asn
-	}
-	return ""
-}
-
-func (x *SoftEtherSession) GetDownloadBytes() uint64 {
-	if x != nil {
-		return x.DownloadBytes
-	}
-	return 0
-}
-
-func (x *SoftEtherSession) GetUploadBytes() uint64 {
-	if x != nil {
-		return x.UploadBytes
-	}
-	return 0
-}
-
-func (x *SoftEtherSession) GetDurationSeconds() int64 {
-	if x != nil {
-		return x.DurationSeconds
-	}
-	return 0
-}
-
 var File_nevarix_management_v1_management_proto protoreflect.FileDescriptor
 
 const file_nevarix_management_v1_management_proto_rawDesc = "" +
@@ -1175,32 +831,7 @@ const file_nevarix_management_v1_management_proto_rawDesc = "" +
 	"\n" +
 	"agent_port\x18\x02 \x01(\x05R\tagentPort\x12\x1d\n" +
 	"\n" +
-	"timeout_ms\x18\x03 \x01(\x05R\ttimeoutMs\"\x1b\n" +
-	"\x19ListSoftEtherUsersRequest\"X\n" +
-	"\x1aListSoftEtherUsersResponse\x12:\n" +
-	"\x05users\x18\x01 \x03(\v2$.nevarix.management.v1.SoftEtherUserR\x05users\"\xe7\x01\n" +
-	"\rSoftEtherUser\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\x12\x1b\n" +
-	"\tclient_ip\x18\x02 \x01(\tR\bclientIp\x12\x15\n" +
-	"\x03asn\x18\x03 \x01(\tH\x00R\x03asn\x88\x01\x01\x12%\n" +
-	"\x0edownload_bytes\x18\x04 \x01(\x04R\rdownloadBytes\x12!\n" +
-	"\fupload_bytes\x18\x05 \x01(\x04R\vuploadBytes\x124\n" +
-	"\x16usage_duration_seconds\x18\x06 \x01(\x03R\x14usageDurationSecondsB\x06\n" +
-	"\x04_asn\">\n" +
-	" ListSoftEtherUserSessionsRequest\x12\x1a\n" +
-	"\busername\x18\x01 \x01(\tR\busername\"h\n" +
-	"!ListSoftEtherUserSessionsResponse\x12C\n" +
-	"\bsessions\x18\x01 \x03(\v2'.nevarix.management.v1.SoftEtherSessionR\bsessions\"\xe0\x02\n" +
-	"\x10SoftEtherSession\x12=\n" +
-	"\fconnected_at\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\vconnectedAt\x12H\n" +
-	"\x0fdisconnected_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampH\x00R\x0edisconnectedAt\x88\x01\x01\x12\x1b\n" +
-	"\tclient_ip\x18\x03 \x01(\tR\bclientIp\x12\x15\n" +
-	"\x03asn\x18\x04 \x01(\tH\x01R\x03asn\x88\x01\x01\x12%\n" +
-	"\x0edownload_bytes\x18\x05 \x01(\x04R\rdownloadBytes\x12!\n" +
-	"\fupload_bytes\x18\x06 \x01(\x04R\vuploadBytes\x12)\n" +
-	"\x10duration_seconds\x18\a \x01(\x03R\x0fdurationSecondsB\x12\n" +
-	"\x10_disconnected_atB\x06\n" +
-	"\x04_asn2\xab\a\n" +
+	"timeout_ms\x18\x03 \x01(\x05R\ttimeoutMs2\x9f\x05\n" +
 	"\x11ManagementService\x12U\n" +
 	"\x06Health\x12$.nevarix.management.v1.HealthRequest\x1a%.nevarix.management.v1.HealthResponse\x12a\n" +
 	"\n" +
@@ -1209,9 +840,7 @@ const file_nevarix_management_v1_management_proto_rawDesc = "" +
 	"\vAddEndpoint\x12).nevarix.management.v1.AddEndpointRequest\x1a*.nevarix.management.v1.AddEndpointResponse\x12O\n" +
 	"\x04Scan\x12\".nevarix.management.v1.ScanRequest\x1a#.nevarix.management.v1.ScanResponse\x12Y\n" +
 	"\vGetSettings\x12).nevarix.management.v1.GetSettingsRequest\x1a\x1f.nevarix.management.v1.Settings\x12R\n" +
-	"\x0eUpdateSettings\x12\x1f.nevarix.management.v1.Settings\x1a\x1f.nevarix.management.v1.Settings\x12y\n" +
-	"\x12ListSoftEtherUsers\x120.nevarix.management.v1.ListSoftEtherUsersRequest\x1a1.nevarix.management.v1.ListSoftEtherUsersResponse\x12\x8e\x01\n" +
-	"\x19ListSoftEtherUserSessions\x127.nevarix.management.v1.ListSoftEtherUserSessionsRequest\x1a8.nevarix.management.v1.ListSoftEtherUserSessionsResponseBaZ_github.com/ArminDashti/nevarix-core/management-connectors/pb/nevarix/management/v1;managementv1b\x06proto3"
+	"\x0eUpdateSettings\x12\x1f.nevarix.management.v1.Settings\x1a\x1f.nevarix.management.v1.SettingsBaZ_github.com/ArminDashti/nevarix-core/management-connectors/pb/nevarix/management/v1;managementv1b\x06proto3"
 
 var (
 	file_nevarix_management_v1_management_proto_rawDescOnce sync.Once
@@ -1225,64 +854,50 @@ func file_nevarix_management_v1_management_proto_rawDescGZIP() []byte {
 	return file_nevarix_management_v1_management_proto_rawDescData
 }
 
-var file_nevarix_management_v1_management_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_nevarix_management_v1_management_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_nevarix_management_v1_management_proto_goTypes = []any{
-	(*HealthRequest)(nil),                     // 0: nevarix.management.v1.HealthRequest
-	(*HealthResponse)(nil),                    // 1: nevarix.management.v1.HealthResponse
-	(*ListAgentsRequest)(nil),                 // 2: nevarix.management.v1.ListAgentsRequest
-	(*ListAgentsResponse)(nil),                // 3: nevarix.management.v1.ListAgentsResponse
-	(*AgentSummary)(nil),                      // 4: nevarix.management.v1.AgentSummary
-	(*ListEndpointsRequest)(nil),              // 5: nevarix.management.v1.ListEndpointsRequest
-	(*ListEndpointsResponse)(nil),             // 6: nevarix.management.v1.ListEndpointsResponse
-	(*Endpoint)(nil),                          // 7: nevarix.management.v1.Endpoint
-	(*AddEndpointRequest)(nil),                // 8: nevarix.management.v1.AddEndpointRequest
-	(*AddEndpointResponse)(nil),               // 9: nevarix.management.v1.AddEndpointResponse
-	(*ScanRequest)(nil),                       // 10: nevarix.management.v1.ScanRequest
-	(*ScanResponse)(nil),                      // 11: nevarix.management.v1.ScanResponse
-	(*ScanHit)(nil),                           // 12: nevarix.management.v1.ScanHit
-	(*GetSettingsRequest)(nil),                // 13: nevarix.management.v1.GetSettingsRequest
-	(*Settings)(nil),                          // 14: nevarix.management.v1.Settings
-	(*ListSoftEtherUsersRequest)(nil),         // 15: nevarix.management.v1.ListSoftEtherUsersRequest
-	(*ListSoftEtherUsersResponse)(nil),        // 16: nevarix.management.v1.ListSoftEtherUsersResponse
-	(*SoftEtherUser)(nil),                     // 17: nevarix.management.v1.SoftEtherUser
-	(*ListSoftEtherUserSessionsRequest)(nil),  // 18: nevarix.management.v1.ListSoftEtherUserSessionsRequest
-	(*ListSoftEtherUserSessionsResponse)(nil), // 19: nevarix.management.v1.ListSoftEtherUserSessionsResponse
-	(*SoftEtherSession)(nil),                  // 20: nevarix.management.v1.SoftEtherSession
-	(*timestamppb.Timestamp)(nil),             // 21: google.protobuf.Timestamp
+	(*HealthRequest)(nil),         // 0: nevarix.management.v1.HealthRequest
+	(*HealthResponse)(nil),        // 1: nevarix.management.v1.HealthResponse
+	(*ListAgentsRequest)(nil),     // 2: nevarix.management.v1.ListAgentsRequest
+	(*ListAgentsResponse)(nil),    // 3: nevarix.management.v1.ListAgentsResponse
+	(*AgentSummary)(nil),          // 4: nevarix.management.v1.AgentSummary
+	(*ListEndpointsRequest)(nil),  // 5: nevarix.management.v1.ListEndpointsRequest
+	(*ListEndpointsResponse)(nil), // 6: nevarix.management.v1.ListEndpointsResponse
+	(*Endpoint)(nil),              // 7: nevarix.management.v1.Endpoint
+	(*AddEndpointRequest)(nil),    // 8: nevarix.management.v1.AddEndpointRequest
+	(*AddEndpointResponse)(nil),   // 9: nevarix.management.v1.AddEndpointResponse
+	(*ScanRequest)(nil),           // 10: nevarix.management.v1.ScanRequest
+	(*ScanResponse)(nil),          // 11: nevarix.management.v1.ScanResponse
+	(*ScanHit)(nil),               // 12: nevarix.management.v1.ScanHit
+	(*GetSettingsRequest)(nil),    // 13: nevarix.management.v1.GetSettingsRequest
+	(*Settings)(nil),              // 14: nevarix.management.v1.Settings
+	(*timestamppb.Timestamp)(nil), // 15: google.protobuf.Timestamp
 }
 var file_nevarix_management_v1_management_proto_depIdxs = []int32{
 	4,  // 0: nevarix.management.v1.ListAgentsResponse.agents:type_name -> nevarix.management.v1.AgentSummary
-	21, // 1: nevarix.management.v1.AgentSummary.last_seen_at:type_name -> google.protobuf.Timestamp
+	15, // 1: nevarix.management.v1.AgentSummary.last_seen_at:type_name -> google.protobuf.Timestamp
 	7,  // 2: nevarix.management.v1.ListEndpointsResponse.endpoints:type_name -> nevarix.management.v1.Endpoint
-	21, // 3: nevarix.management.v1.Endpoint.last_seen_at:type_name -> google.protobuf.Timestamp
+	15, // 3: nevarix.management.v1.Endpoint.last_seen_at:type_name -> google.protobuf.Timestamp
 	12, // 4: nevarix.management.v1.ScanResponse.hits:type_name -> nevarix.management.v1.ScanHit
-	17, // 5: nevarix.management.v1.ListSoftEtherUsersResponse.users:type_name -> nevarix.management.v1.SoftEtherUser
-	20, // 6: nevarix.management.v1.ListSoftEtherUserSessionsResponse.sessions:type_name -> nevarix.management.v1.SoftEtherSession
-	21, // 7: nevarix.management.v1.SoftEtherSession.connected_at:type_name -> google.protobuf.Timestamp
-	21, // 8: nevarix.management.v1.SoftEtherSession.disconnected_at:type_name -> google.protobuf.Timestamp
-	0,  // 9: nevarix.management.v1.ManagementService.Health:input_type -> nevarix.management.v1.HealthRequest
-	2,  // 10: nevarix.management.v1.ManagementService.ListAgents:input_type -> nevarix.management.v1.ListAgentsRequest
-	5,  // 11: nevarix.management.v1.ManagementService.ListEndpoints:input_type -> nevarix.management.v1.ListEndpointsRequest
-	8,  // 12: nevarix.management.v1.ManagementService.AddEndpoint:input_type -> nevarix.management.v1.AddEndpointRequest
-	10, // 13: nevarix.management.v1.ManagementService.Scan:input_type -> nevarix.management.v1.ScanRequest
-	13, // 14: nevarix.management.v1.ManagementService.GetSettings:input_type -> nevarix.management.v1.GetSettingsRequest
-	14, // 15: nevarix.management.v1.ManagementService.UpdateSettings:input_type -> nevarix.management.v1.Settings
-	15, // 16: nevarix.management.v1.ManagementService.ListSoftEtherUsers:input_type -> nevarix.management.v1.ListSoftEtherUsersRequest
-	18, // 17: nevarix.management.v1.ManagementService.ListSoftEtherUserSessions:input_type -> nevarix.management.v1.ListSoftEtherUserSessionsRequest
-	1,  // 18: nevarix.management.v1.ManagementService.Health:output_type -> nevarix.management.v1.HealthResponse
-	3,  // 19: nevarix.management.v1.ManagementService.ListAgents:output_type -> nevarix.management.v1.ListAgentsResponse
-	6,  // 20: nevarix.management.v1.ManagementService.ListEndpoints:output_type -> nevarix.management.v1.ListEndpointsResponse
-	9,  // 21: nevarix.management.v1.ManagementService.AddEndpoint:output_type -> nevarix.management.v1.AddEndpointResponse
-	11, // 22: nevarix.management.v1.ManagementService.Scan:output_type -> nevarix.management.v1.ScanResponse
-	14, // 23: nevarix.management.v1.ManagementService.GetSettings:output_type -> nevarix.management.v1.Settings
-	14, // 24: nevarix.management.v1.ManagementService.UpdateSettings:output_type -> nevarix.management.v1.Settings
-	16, // 25: nevarix.management.v1.ManagementService.ListSoftEtherUsers:output_type -> nevarix.management.v1.ListSoftEtherUsersResponse
-	19, // 26: nevarix.management.v1.ManagementService.ListSoftEtherUserSessions:output_type -> nevarix.management.v1.ListSoftEtherUserSessionsResponse
-	18, // [18:27] is the sub-list for method output_type
-	9,  // [9:18] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	0,  // 5: nevarix.management.v1.ManagementService.Health:input_type -> nevarix.management.v1.HealthRequest
+	2,  // 6: nevarix.management.v1.ManagementService.ListAgents:input_type -> nevarix.management.v1.ListAgentsRequest
+	5,  // 7: nevarix.management.v1.ManagementService.ListEndpoints:input_type -> nevarix.management.v1.ListEndpointsRequest
+	8,  // 8: nevarix.management.v1.ManagementService.AddEndpoint:input_type -> nevarix.management.v1.AddEndpointRequest
+	10, // 9: nevarix.management.v1.ManagementService.Scan:input_type -> nevarix.management.v1.ScanRequest
+	13, // 10: nevarix.management.v1.ManagementService.GetSettings:input_type -> nevarix.management.v1.GetSettingsRequest
+	14, // 11: nevarix.management.v1.ManagementService.UpdateSettings:input_type -> nevarix.management.v1.Settings
+	1,  // 12: nevarix.management.v1.ManagementService.Health:output_type -> nevarix.management.v1.HealthResponse
+	3,  // 13: nevarix.management.v1.ManagementService.ListAgents:output_type -> nevarix.management.v1.ListAgentsResponse
+	6,  // 14: nevarix.management.v1.ManagementService.ListEndpoints:output_type -> nevarix.management.v1.ListEndpointsResponse
+	9,  // 15: nevarix.management.v1.ManagementService.AddEndpoint:output_type -> nevarix.management.v1.AddEndpointResponse
+	11, // 16: nevarix.management.v1.ManagementService.Scan:output_type -> nevarix.management.v1.ScanResponse
+	14, // 17: nevarix.management.v1.ManagementService.GetSettings:output_type -> nevarix.management.v1.Settings
+	14, // 18: nevarix.management.v1.ManagementService.UpdateSettings:output_type -> nevarix.management.v1.Settings
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_nevarix_management_v1_management_proto_init() }
@@ -1291,15 +906,13 @@ func file_nevarix_management_v1_management_proto_init() {
 		return
 	}
 	file_nevarix_management_v1_management_proto_msgTypes[7].OneofWrappers = []any{}
-	file_nevarix_management_v1_management_proto_msgTypes[17].OneofWrappers = []any{}
-	file_nevarix_management_v1_management_proto_msgTypes[20].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_nevarix_management_v1_management_proto_rawDesc), len(file_nevarix_management_v1_management_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   21,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

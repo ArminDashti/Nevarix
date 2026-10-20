@@ -5,19 +5,20 @@
 @import "@fontsource/inter/700.css";
 
 @theme {
-  --color-background: oklch(0.16 0.02 255);
-  --color-foreground: oklch(0.95 0.01 255);
-  --color-card: oklch(0.2 0.02 255);
-  --color-card-foreground: oklch(0.95 0.01 255);
-  --color-primary: oklch(0.72 0.12 220);
-  --color-primary-foreground: oklch(0.15 0.02 255);
-  --color-muted: oklch(0.25 0.02 255);
-  --color-muted-foreground: oklch(0.72 0.02 255);
-  --color-border: oklch(0.32 0.02 255);
+  --color-background: #333333;
+  --color-sidebar: #404040;
+  --color-foreground: #e8e8e8;
+  --color-card: #3a3a3a;
+  --color-card-foreground: #e8e8e8;
+  --color-primary: #525252;
+  --color-primary-foreground: #f5f5f5;
+  --color-muted: #454545;
+  --color-muted-foreground: #a8a8a8;
+  --color-border: #4a4a4a;
   --color-destructive: oklch(0.6 0.2 25);
   --color-destructive-foreground: oklch(0.98 0.01 25);
-  --color-accent: oklch(0.28 0.03 255);
-  --color-accent-foreground: oklch(0.95 0.01 255);
+  --color-accent: #484848;
+  --color-accent-foreground: #f0f0f0;
   --radius-lg: 0.6rem;
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
@@ -31,13 +32,16 @@ html {
   color-scheme: dark;
 }
 
+html,
+body,
+#app {
+  height: 100%;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% -10%, oklch(0.28 0.05 230 / 0.45), transparent),
-    radial-gradient(ellipse 60% 40% at 90% 0%, oklch(0.25 0.04 280 / 0.35), transparent),
-    var(--color-background);
+  background: var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
 }

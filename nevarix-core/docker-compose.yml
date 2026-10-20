@@ -1,24 +1,6 @@
-name: nevarix
+name: nevarix-core
 
 services:
-  softether:
-    image: softethervpn/vpnserver:latest
-    container_name: nevarix-softether
-    restart: "no"
-    privileged: true
-    cap_add:
-      - NET_ADMIN
-    environment:
-      PSK: nevarix
-      USERNAME: nevarix
-      PASSWORD: nevarix
-      SPW: nevarix
-      HPW: nevarix
-    volumes:
-      - nevarix-softether-data:/usr/vpnserver
-    networks:
-      - app_net
-
   nevarix-core-pgsql:
     image: postgres:16-alpine
     container_name: nevarix-core-pgsql
@@ -42,12 +24,7 @@ services:
       DATABASE_URL: ${DATABASE_URL:?set DATABASE_URL in the environment or .env}
       AGENT_INGEST_TOKEN: ${AGENT_INGEST_TOKEN:?set AGENT_INGEST_TOKEN in the environment or .env}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5184,http://127.0.0.1:5184,http://localhost:5173,http://127.0.0.1:5173}
-      SOFTETHER_CONTAINER: nevarix-softether
-      SOFTETHER_PASSWORD: nevarix
-      SOFTETHER_HUB: DEFAULT
-      SOFTETHER_ENABLED: "true"
       METRICS_HISTORY_POINTS: "60"
-      SOFTETHER_POLL_SECONDS: "30"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     expose:
@@ -61,8 +38,6 @@ services:
         published: ${GRPC_PUBLISH_PORT-50051}
         protocol: tcp
     depends_on:
-      softether:
-        condition: service_started
       nevarix-core-pgsql:
         condition: service_started
     networks:
@@ -74,7 +49,6 @@ networks:
     external: true
 
 volumes:
-  nevarix-softether-data:
-    name: nevarix-softether-data
   nevarix-core-pgsql-data:
     name: nevarix-core-pgsql-data
+

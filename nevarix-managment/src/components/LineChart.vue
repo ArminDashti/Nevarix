@@ -24,8 +24,8 @@ const chartData = computed(() => ({
   datasets: props.datasets.map((d) => ({
     label: d.label,
     data: d.data,
-    borderColor: d.color ?? '#5ec8ff',
-    backgroundColor: (d.color ?? '#5ec8ff') + '33',
+    borderColor: d.color ?? '#c8c8c8',
+    backgroundColor: (d.color ?? '#c8c8c8') + '33',
     fill: true,
     tension: 0.35,
     pointRadius: 0,
@@ -37,11 +37,11 @@ const options = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { labels: { color: '#c5d0e0' } },
+    legend: { labels: { color: '#d4d4d4' } },
   },
   scales: {
-    x: { ticks: { color: '#8b97a8', maxTicksLimit: 8 }, grid: { color: '#2a3344' } },
-    y: { ticks: { color: '#8b97a8' }, grid: { color: '#2a3344' } },
+    x: { ticks: { color: '#a8a8a8', maxTicksLimit: 8 }, grid: { color: '#4a4a4a' } },
+    y: { ticks: { color: '#a8a8a8' }, grid: { color: '#4a4a4a' } },
   },
 }
 </script>

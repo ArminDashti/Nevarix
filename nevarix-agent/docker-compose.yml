@@ -1,9 +1,9 @@
-name: nevarix
+name: nevarix-agent
 
 services:
-  nevarix-agent:
+  nevarix-agent-api:
     image: ${IMAGE_TAG:-nevarix-agent:latest}
-    container_name: nevarix-managment-api
+    container_name: nevarix-agent-api
     restart: "no"
     environment:
       NEVARIX_CORE_URL: ${NEVARIX_CORE_URL:-http://nevarix-core-api:8090}

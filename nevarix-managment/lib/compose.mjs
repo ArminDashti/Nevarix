@@ -5,12 +5,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const PROJECT = 'nevarix';
+const PROJECT = 'nevarix-core';
 
 export const composeFile =
   process.env.NVX_COMPOSE_FILE || resolve(here, '..', '..', 'nevarix-core', 'docker-compose.local.yml');
 
-// Runs `docker compose -f <files> -p nevarix <args>` with inherited stdio.
+// Runs `docker compose -f <files> -p nevarix-core <args>` with inherited stdio.
 export function compose(args, extraFiles = []) {
   const fileArgs = [composeFile, ...extraFiles].flatMap((file) => ['-f', file]);
   return new Promise((done, fail) => {
@@ -29,7 +29,7 @@ export async function writePortOverride(hostPort) {
     file,
     [
       'services:',
-      '  core:',
+      '  nevarix-core-api:',
       '    ports: !override',
       `      - "${hostPort}:8090"`,
       '      - "50051:50051"',

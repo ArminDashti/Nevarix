@@ -20,9 +20,9 @@ export default defineConfig({
       manifest: {
         name: 'Nevarix',
         short_name: 'Nevarix',
-        description: 'Host and SoftEther monitoring',
-        theme_color: '#0b1220',
-        background_color: '#0b1220',
+        description: 'Host monitoring',
+        theme_color: '#333333',
+        background_color: '#333333',
         display: 'standalone',
         start_url: basePath,
         icons: [

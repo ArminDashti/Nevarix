@@ -7,7 +7,6 @@ import (
 
 	"github.com/ArminDashti/nevarix-core/core/dockerx"
 	"github.com/ArminDashti/nevarix-core/core/metrics"
-	"github.com/ArminDashti/nevarix-core/core/softether"
 	"github.com/ArminDashti/nevarix-core/core/store"
 	"github.com/ArminDashti/nevarix-core/management-connectors/service"
 	"github.com/gin-gonic/gin"
@@ -16,15 +15,14 @@ import (
 const maxJSONBodyBytes = 1 << 16
 
 type Panel struct {
-	svc       *service.Management
-	store     *store.Store
-	metrics   *metrics.Collector
-	docker    *dockerx.Client
-	softether *softether.Client
+	svc     *service.Management
+	store   *store.Store
+	metrics *metrics.Collector
+	docker  *dockerx.Client
 }
 
-func New(svc *service.Management, st *store.Store, m *metrics.Collector, d *dockerx.Client, se *softether.Client) *Panel {
-	return &Panel{svc: svc, store: st, metrics: m, docker: d, softether: se}
+func New(svc *service.Management, st *store.Store, m *metrics.Collector, d *dockerx.Client) *Panel {
+	return &Panel{svc: svc, store: st, metrics: m, docker: d}
 }
 
 // Register mounts the panel routes on the given group (e.g. /api/v1).
@@ -43,10 +41,6 @@ func (p *Panel) Register(v1 *gin.RouterGroup) {
 
 	v1.GET("/docker/images", p.getDockerImages)
 	v1.GET("/docker/containers", p.getDockerContainers)
-
-	v1.GET("/softether/sessions", p.getSoftEtherSessions)
-	v1.GET("/softether/users", p.getSoftEtherUsers)
-	v1.GET("/softether/users/:username/sessions", p.getSoftEtherUserSessions)
 
 	v1.GET("/endpoints", p.getEndpoints)
 	v1.POST("/endpoints", p.postEndpoint)

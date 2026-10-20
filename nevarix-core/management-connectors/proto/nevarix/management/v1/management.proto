@@ -15,8 +15,6 @@ service ManagementService {
   rpc Scan(ScanRequest) returns (ScanResponse);
   rpc GetSettings(GetSettingsRequest) returns (Settings);
   rpc UpdateSettings(Settings) returns (Settings);
-  rpc ListSoftEtherUsers(ListSoftEtherUsersRequest) returns (ListSoftEtherUsersResponse);
-  rpc ListSoftEtherUserSessions(ListSoftEtherUserSessionsRequest) returns (ListSoftEtherUserSessionsResponse);
 }
 
 message HealthRequest {}
@@ -85,37 +83,4 @@ message Settings {
   string default_cidr = 1;
   int32 agent_port = 2;
   int32 timeout_ms = 3;
-}
-
-message ListSoftEtherUsersRequest {}
-
-message ListSoftEtherUsersResponse {
-  repeated SoftEtherUser users = 1;
-}
-
-message SoftEtherUser {
-  string username = 1;
-  string client_ip = 2;
-  optional string asn = 3;
-  uint64 download_bytes = 4;
-  uint64 upload_bytes = 5;
-  int64 usage_duration_seconds = 6;
-}
-
-message ListSoftEtherUserSessionsRequest {
-  string username = 1;
-}
-
-message ListSoftEtherUserSessionsResponse {
-  repeated SoftEtherSession sessions = 1;
-}
-
-message SoftEtherSession {
-  google.protobuf.Timestamp connected_at = 1;
-  optional google.protobuf.Timestamp disconnected_at = 2;
-  string client_ip = 3;
-  optional string asn = 4;
-  uint64 download_bytes = 5;
-  uint64 upload_bytes = 6;
-  int64 duration_seconds = 7;
 }
