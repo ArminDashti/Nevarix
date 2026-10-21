@@ -18,6 +18,7 @@ import (
 	"github.com/ArminDashti/nevarix-core/core/config"
 	"github.com/ArminDashti/nevarix-core/core/dockerx"
 	"github.com/ArminDashti/nevarix-core/core/metrics"
+	"github.com/ArminDashti/nevarix-core/core/netmon"
 	"github.com/ArminDashti/nevarix-core/core/store"
 	mgmtgrpc "github.com/ArminDashti/nevarix-core/management-connectors/grpcapi"
 	managementv1 "github.com/ArminDashti/nevarix-core/management-connectors/pb/nevarix/management/v1"
@@ -53,6 +54,13 @@ func main() {
 		log.Printf("docker client unavailable: %v", err)
 	}
 	svc := service.New(st)
+
+	settings, err := st.Settings(ctx)
+	if err != nil {
+		log.Fatalf("load settings: %v", err)
+	}
+	pollInterval := time.Duration(settings.NetPollIntervalSec) * time.Second
+	go netmon.NewPoller(st, cfg.MetricsHistoryPoints, pollInterval).Run(ctx)
 
 	engine := gin.New()
 	engine.Use(gin.Recovery(), gin.Logger(), cors.New(cors.Config{

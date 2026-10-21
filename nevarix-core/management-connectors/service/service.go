@@ -33,6 +33,8 @@ func New(st *store.Store) *Management {
 type EndpointView struct {
 	IP         string     `json:"ip,omitempty"`
 	Hostname   string     `json:"hostname"`
+	AgentPort  int        `json:"agentPort,omitempty"`
+	Username   string     `json:"username,omitempty"`
 	Source     string     `json:"source"`
 	LastSeenAt *time.Time `json:"lastSeenAt,omitempty"`
 }
@@ -48,7 +50,9 @@ func (m *Management) ListEndpoints(ctx context.Context) ([]EndpointView, error) 
 	}
 	out := []EndpointView{}
 	for _, e := range scanned {
-		out = append(out, EndpointView{IP: e.IP, Hostname: e.Hostname, Source: "scan"})
+		out = append(out, EndpointView{
+			IP: e.IP, Hostname: e.Hostname, AgentPort: e.AgentPort, Username: e.Username, Source: "scan",
+		})
 	}
 	for _, a := range agents {
 		seen := a.LastSeenAt
@@ -57,11 +61,40 @@ func (m *Management) ListEndpoints(ctx context.Context) ([]EndpointView, error) 
 	return out, nil
 }
 
-func (m *Management) AddEndpoint(ctx context.Context, ip, hostname string) error {
-	if net.ParseIP(ip) == nil {
+type AddEndpointInput struct {
+	IP          string
+	Hostname    string
+	AgentPort   int
+	Username    string
+	Password    string
+	VerifyAgent bool
+}
+
+func (m *Management) AddEndpoint(ctx context.Context, in AddEndpointInput) error {
+	if net.ParseIP(in.IP) == nil {
 		return invalid("ip is not a valid address")
 	}
-	return m.store.AddEndpoint(ctx, model.Endpoint{IP: ip, Hostname: hostname})
+	st, err := m.store.Settings(ctx)
+	if err != nil {
+		return err
+	}
+	port := in.AgentPort
+	if port == 0 {
+		port = st.AgentPort
+	}
+	hostname := in.Hostname
+	if in.VerifyAgent {
+		hit := discovery.Probe(ctx, in.IP, port, time.Duration(st.TimeoutMs)*time.Millisecond)
+		if hit == nil {
+			return invalid("no nevarix-agent responded on that IP and port")
+		}
+		if hostname == "" {
+			hostname = hit.Hostname
+		}
+	}
+	return m.store.AddEndpoint(ctx, model.Endpoint{
+		IP: in.IP, Hostname: hostname, AgentPort: port, Username: in.Username, Password: in.Password,
+	})
 }
 
 type ScanRequest struct {
@@ -115,6 +148,12 @@ func (m *Management) UpdateSettings(ctx context.Context, st model.Settings) (mod
 	}
 	if st.TimeoutMs < 50 || st.TimeoutMs > 10000 {
 		return model.Settings{}, invalid("timeoutMs must be between 50 and 10000")
+	}
+	if st.NetPollIntervalSec < 10 || st.NetPollIntervalSec > 3600 {
+		return model.Settings{}, invalid("netPollIntervalSec must be between 10 and 3600")
+	}
+	if st.SnmpCommunity == "" {
+		return model.Settings{}, invalid("snmpCommunity is required")
 	}
 	if err := m.store.SaveSettings(ctx, st); err != nil {
 		return model.Settings{}, err

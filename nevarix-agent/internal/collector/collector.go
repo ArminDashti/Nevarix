@@ -1,21 +1,23 @@
 package collector
 
 import (
-	"sync"
+	"context"
 	"time"
 
+	"github.com/ArminDashti/nevarix-agent/internal/dockermetrics"
+	"github.com/ArminDashti/nevarix-agent/internal/hardware"
+	"github.com/ArminDashti/nevarix-agent/internal/history"
 	"github.com/ArminDashti/nevarix-agent/internal/inventory"
+	"github.com/ArminDashti/nevarix-agent/internal/nics"
+	"github.com/ArminDashti/nevarix-agent/internal/storage"
+	"github.com/ArminDashti/nevarix-agent/internal/sysreport"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/mem"
-	"github.com/shirou/gopsutil/v4/net"
 )
 
-type CoreSample struct {
-	CoreIndex    int     `json:"coreIndex"`
-	UsagePercent float64 `json:"usagePercent"`
-}
+type CoreSample = sysreport.CoreSample
 
 type DiskSample struct {
 	MountPoint  string  `json:"mountPoint"`
@@ -39,22 +41,32 @@ type Snapshot struct {
 	BandwidthRxBps       float64          `json:"bandwidthRxBps"`
 	BandwidthTxBps       float64          `json:"bandwidthTxBps"`
 	UptimeSeconds        uint64           `json:"uptimeSeconds"`
-	System               inventory.System `json:"system"`
+	System               sysreport.Report `json:"system"`
 	CollectedAt          time.Time        `json:"collectedAt"`
 }
 
 type Collector struct {
-	mu         sync.Mutex
 	agentID    string
 	hostname   string
-	lastNet    net.IOCountersStat
-	lastNetAt  time.Time
-	hasLastNet bool
+	dockerMax  int
 	inv        *inventory.Collector
+	nics       *nics.Collector
+	storage    *storage.Collector
+	hw         *hardware.Collector
+	hist       *history.Store
 }
 
-func New(agentID, hostname string) *Collector {
-	return &Collector{agentID: agentID, hostname: hostname, inv: inventory.New()}
+func New(agentID, hostname string, historyPoints, dockerMax int) *Collector {
+	return &Collector{
+		agentID:   agentID,
+		hostname:  hostname,
+		dockerMax: dockerMax,
+		inv:       inventory.New(),
+		nics:      nics.New(),
+		storage:   storage.New(),
+		hw:        hardware.New(),
+		hist:      history.New(historyPoints),
+	}
 }
 
 func (c *Collector) Collect() (Snapshot, error) {
@@ -103,11 +115,72 @@ func (c *Collector) Collect() (Snapshot, error) {
 	}
 
 	uptime, _ := host.Uptime()
-	rx, tx := c.bandwidthRates(now)
-
 	cpuPct := 0.0
 	if len(total) > 0 {
 		cpuPct = round2(total[0])
+	}
+
+	base := c.inv.Collect()
+	temps := sysreport.BucketTemps(base.Temperatures)
+	nicList, rx, tx := c.nics.Collect(now)
+	store := c.storage.Collect(now, temps)
+	hw := c.hw.Collect()
+	dkr := dockermetrics.Collect(context.Background(), nil, c.dockerMax)
+
+	c.hist.Push(sysreport.KeyCPU, sysreport.Sample{Timestamp: now, CPUPercent: cpuPct, TemperatureC: temps.CPU})
+	c.hist.Push(sysreport.KeyMemory, sysreport.Sample{Timestamp: now, MemPercent: round2(vm.UsedPercent), MemBytes: vm.Used, TemperatureC: temps.Memory})
+	for i := range nicList {
+		n := &nicList[i]
+		n.TemperatureC = temps.NIC
+		c.hist.Push(sysreport.KeyNIC+n.Name, sysreport.Sample{Timestamp: now, RxBps: n.RxBps, TxBps: n.TxBps, TemperatureC: n.TemperatureC})
+		n.History = c.hist.Get(sysreport.KeyNIC + n.Name)
+	}
+	attachDiskHistory(c.hist, now, &store)
+	for i := range dkr.Containers {
+		ctr := &dkr.Containers[i]
+		key := sysreport.KeyDocker + ctr.ID
+		c.hist.Push(key, sysreport.Sample{
+			Timestamp: now, CPUPercent: ctr.CPUPercent, MemBytes: ctr.MemoryBytes,
+			RxBps: ctr.RxBps, TxBps: ctr.TxBps, ReadBps: ctr.ReadBps, WriteBps: ctr.WriteBps,
+		})
+		ctr.History = c.hist.Get(key)
+	}
+
+	cpuInfo := firstCPU(hw.Full.CPUs)
+	logical, _ := cpu.Counts(true)
+	cpuInfo.Logical = logical
+
+	report := sysreport.Report{
+		SchemaVersion:   sysreport.SchemaVersion,
+		OS:              base.OS,
+		Platform:        base.Platform,
+		PlatformVersion: base.PlatformVersion,
+		KernelVersion:   base.KernelVersion,
+		Arch:            base.Arch,
+		CPU: sysreport.CPUReport{
+			Info:         cpuInfo,
+			Current:      sysreport.CPUCurrent{Percent: cpuPct, Cores: cores},
+			History:      c.hist.Get(sysreport.KeyCPU),
+			TemperatureC: temps.CPU,
+		},
+		Memory: sysreport.MemoryReport{
+			Info: sysreport.MemoryInfo{TotalBytes: vm.Total, Modules: hw.Full.Memory},
+			Current: sysreport.MemoryCurrent{
+				TotalBytes: vm.Total, UsedBytes: vm.Used, AvailableBytes: vm.Available, UsedPercent: round2(vm.UsedPercent),
+			},
+			History:      c.hist.Get(sysreport.KeyMemory),
+			TemperatureC: temps.Memory,
+		},
+		Storage: store,
+		Motherboard: sysreport.MotherboardReport{
+			Vendor: base.Motherboard.Vendor, Product: base.Motherboard.Product, Serial: base.Motherboard.Serial,
+			TemperatureC: temps.Motherboard,
+		},
+		Network:      sysreport.NetworkReport{NICs: nicList},
+		Docker:       dkr,
+		Hardware:     hw,
+		Firewall:     base.Firewall,
+		Temperatures: base.Temperatures,
 	}
 
 	return Snapshot{
@@ -123,40 +196,31 @@ func (c *Collector) Collect() (Snapshot, error) {
 		BandwidthRxBps:       rx,
 		BandwidthTxBps:       tx,
 		UptimeSeconds:        uptime,
-		System:               c.inv.Collect(),
+		System:               report,
 		CollectedAt:          now,
 	}, nil
 }
 
-func (c *Collector) bandwidthRates(now time.Time) (float64, float64) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
-	counters, err := net.IOCounters(false)
-	if err != nil || len(counters) == 0 {
-		return 0, 0
+func attachDiskHistory(h *history.Store, now time.Time, store *sysreport.StorageReport) {
+	for i := range store.SSDs {
+		d := &store.SSDs[i]
+		key := sysreport.KeyDisk + d.ID
+		h.Push(key, sysreport.Sample{Timestamp: now, ReadBps: d.ReadBps, WriteBps: d.WriteBps, TemperatureC: d.TemperatureC})
+		d.History = h.Get(key)
 	}
-	cur := counters[0]
-	if !c.hasLastNet || !c.lastNetAt.Before(now) {
-		c.lastNet = cur
-		c.lastNetAt = now
-		c.hasLastNet = true
-		return 0, 0
+	for i := range store.HDDs {
+		d := &store.HDDs[i]
+		key := sysreport.KeyDisk + d.ID
+		h.Push(key, sysreport.Sample{Timestamp: now, ReadBps: d.ReadBps, WriteBps: d.WriteBps, TemperatureC: d.TemperatureC})
+		d.History = h.Get(key)
 	}
-	sec := now.Sub(c.lastNetAt).Seconds()
-	if sec <= 0 {
-		return 0, 0
+}
+
+func firstCPU(cpus []sysreport.CPUInfo) sysreport.CPUInfo {
+	if len(cpus) == 0 {
+		return sysreport.CPUInfo{}
 	}
-	rx := float64(cur.BytesRecv-c.lastNet.BytesRecv) / sec
-	tx := float64(cur.BytesSent-c.lastNet.BytesSent) / sec
-	if rx < 0 {
-		rx = 0
-	}
-	if tx < 0 {
-		tx = 0
-	}
-	c.lastNet = cur
-	c.lastNetAt = now
-	return round2(rx), round2(tx)
+	return cpus[0]
 }
 
 func round2(v float64) float64 {

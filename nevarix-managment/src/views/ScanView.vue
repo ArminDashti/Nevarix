@@ -51,7 +51,7 @@ async function addHit(hit: ScanHit) {
   adding.value = new Set([...adding.value, hit.ip])
   error.value = ''
   try {
-    await core.addEndpoint(hit.ip, hit.hostname)
+    await core.addEndpoint({ ip: hit.ip, hostname: hit.hostname })
     added.value = new Set([...added.value, hit.ip])
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Failed to add endpoint'

@@ -12,6 +12,9 @@ import SystemView from '@/views/SystemView.vue'
 import MotherboardView from '@/views/MotherboardView.vue'
 import TemperatureView from '@/views/TemperatureView.vue'
 import FirewallView from '@/views/FirewallView.vue'
+import DevicesView from '@/views/DevicesView.vue'
+import DeviceDetailView from '@/views/DeviceDetailView.vue'
+import DeviceScanView from '@/views/DeviceScanView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +27,9 @@ const router = createRouter({
     { path: '/docker', name: 'docker', component: DockerView },
     { path: '/endpoints', name: 'endpoints', component: EndpointsView },
     { path: '/endpoints/scan', name: 'endpoints-scan', component: ScanView },
+    { path: '/devices', name: 'devices', component: DevicesView },
+    { path: '/devices/scan', name: 'devices-scan', component: DeviceScanView },
+    { path: '/devices/:deviceId', name: 'device-detail', component: DeviceDetailView },
     { path: '/system', name: 'system', component: SystemView },
     { path: '/motherboard', name: 'motherboard', component: MotherboardView },
     { path: '/temperature', name: 'temperature', component: TemperatureView },

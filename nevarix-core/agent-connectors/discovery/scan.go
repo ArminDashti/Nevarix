@@ -99,6 +99,12 @@ func Run(ctx context.Context, hosts []string, port int, timeout time.Duration) [
 	return hits
 }
 
+// Probe checks a single host:port for nevarix-agent /health.
+func Probe(ctx context.Context, ip string, port int, timeout time.Duration) *Hit {
+	client := &http.Client{Timeout: timeout}
+	return probe(ctx, client, ip, port)
+}
+
 func probe(ctx context.Context, client *http.Client, ip string, port int) *Hit {
 	url := "http://" + net.JoinHostPort(ip, strconv.Itoa(port)) + "/health"
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)

@@ -18,8 +18,12 @@ func (p *Panel) getEndpoints(c *gin.Context) {
 }
 
 type addEndpointBody struct {
-	IP       string `json:"ip"`
-	Hostname string `json:"hostname"`
+	IP          string `json:"ip"`
+	Hostname    string `json:"hostname"`
+	AgentPort   int    `json:"agentPort"`
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	VerifyAgent bool   `json:"verifyAgent"`
 }
 
 func (p *Panel) postEndpoint(c *gin.Context) {
@@ -29,7 +33,10 @@ func (p *Panel) postEndpoint(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := p.svc.AddEndpoint(c.Request.Context(), body.IP, body.Hostname); err != nil {
+	if err := p.svc.AddEndpoint(c.Request.Context(), service.AddEndpointInput{
+		IP: body.IP, Hostname: body.Hostname, AgentPort: body.AgentPort,
+		Username: body.Username, Password: body.Password, VerifyAgent: body.VerifyAgent,
+	}); err != nil {
 		respondError(c, err)
 		return
 	}

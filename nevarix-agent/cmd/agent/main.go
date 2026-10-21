@@ -35,8 +35,9 @@ func main() {
 	}
 	defer box.Close()
 
-	col := collector.New(cfg.AgentID, cfg.Hostname)
-	api := client.New(cfg.CoreURL, cfg.AgentToken)
+	col := collector.New(cfg.AgentID, cfg.Hostname, cfg.HistoryPoints, cfg.DockerMax)
+	api := client.New(cfg)
+	defer api.Close()
 
 	go func() {
 		id := health.Identity{Agent: "nevarix-agent", AgentID: cfg.AgentID, Hostname: cfg.Hostname}
@@ -45,8 +46,8 @@ func main() {
 		}
 	}()
 
-	log.Printf("nevarix-agent starting agentId=%s hostname=%s core=%s interval=%s outbox=%s (timestamps UTC)",
-		cfg.AgentID, cfg.Hostname, cfg.CoreURL, cfg.CollectInterval, cfg.OutboxPath)
+	log.Printf("nevarix-agent starting agentId=%s hostname=%s core=%s grpc=%s transport=%s interval=%s outbox=%s (timestamps UTC)",
+		cfg.AgentID, cfg.Hostname, cfg.CoreURL, cfg.GRPCAddr, cfg.Transport, cfg.CollectInterval, cfg.OutboxPath)
 
 	// Resend anything left from a previous run before collecting new data.
 	if err := flush(ctx, box, api); err != nil {
@@ -87,7 +88,7 @@ func collectAndQueue(col *collector.Collector, box *outbox.Store) error {
 
 // flush sends queued snapshots oldest first and deletes each row only after Core acks it.
 // It stops at the first failure so Core receives snapshots in order.
-func flush(ctx context.Context, box *outbox.Store, api *client.Client) error {
+func flush(ctx context.Context, box *outbox.Store, api client.Sender) error {
 	items, err := box.Pending(ctx, flushBatch)
 	if err != nil {
 		return err

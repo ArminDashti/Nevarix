@@ -48,11 +48,12 @@ type AgentSummary struct {
 
 // MetricPoint is one agent history sample; the same row feeds CPU, memory and bandwidth charts.
 type MetricPoint struct {
-	Timestamp  time.Time `json:"timestamp"`
-	CPUPercent float64   `json:"cpuPercent"`
-	MemPercent float64   `json:"memPercent"`
-	RxBps      float64   `json:"rxBps"`
-	TxBps      float64   `json:"txBps"`
+	Timestamp  time.Time       `json:"timestamp"`
+	CPUPercent float64         `json:"cpuPercent"`
+	MemPercent float64         `json:"memPercent"`
+	RxBps      float64         `json:"rxBps"`
+	TxBps      float64         `json:"txBps"`
+	Details    json.RawMessage `json:"details,omitempty"`
 }
 
 // Point is one local-collector series sample.
@@ -69,13 +70,18 @@ type BandwidthPoint struct {
 }
 
 type Settings struct {
-	DefaultCIDR string `json:"defaultCidr"`
-	AgentPort   int    `json:"agentPort"`
-	TimeoutMs   int    `json:"timeoutMs"`
+	DefaultCIDR        string `json:"defaultCidr"`
+	AgentPort          int    `json:"agentPort"`
+	TimeoutMs          int    `json:"timeoutMs"`
+	SnmpCommunity      string `json:"snmpCommunity"`
+	NetPollIntervalSec int    `json:"netPollIntervalSec"`
 }
 
 type Endpoint struct {
-	IP       string    `json:"ip"`
-	Hostname string    `json:"hostname"`
-	AddedAt  time.Time `json:"addedAt"`
+	IP        string    `json:"ip"`
+	Hostname  string    `json:"hostname"`
+	AgentPort int       `json:"agentPort,omitempty"`
+	Username  string    `json:"username,omitempty"`
+	Password  string    `json:"-"`
+	AddedAt   time.Time `json:"addedAt"`
 }

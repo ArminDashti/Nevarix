@@ -47,6 +47,15 @@ func (p *Panel) Register(v1 *gin.RouterGroup) {
 	v1.POST("/scan", p.postScan)
 	v1.GET("/settings", p.getSettings)
 	v1.PUT("/settings", p.putSettings)
+
+	v1.GET("/devices", p.getDevices)
+	v1.POST("/devices", p.postDevice)
+	v1.POST("/devices/scan", p.postDeviceScan)
+	v1.GET("/devices/:deviceId", p.getDevice)
+	v1.PUT("/devices/:deviceId", p.putDevice)
+	v1.DELETE("/devices/:deviceId", p.deleteDevice)
+	v1.GET("/devices/:deviceId/interfaces", p.getDeviceInterfaces)
+	v1.GET("/devices/:deviceId/history", p.getDeviceHistory)
 }
 
 // respondError maps validation failures to 400 and everything else to 500.

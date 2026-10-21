@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const maxBodyBytes = 1 << 20
+const maxBodyBytes = 4 << 20
 
 type Ingest struct {
 	store         *store.Store

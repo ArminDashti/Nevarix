@@ -3,7 +3,13 @@ import { onMounted, ref } from 'vue'
 import { core, type CoreSettings } from '@/api/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const settings = ref<CoreSettings>({ defaultCidr: '', agentPort: 9000, timeoutMs: 500 })
+const settings = ref<CoreSettings>({
+  defaultCidr: '',
+  agentPort: 9000,
+  timeoutMs: 500,
+  snmpCommunity: 'public',
+  netPollIntervalSec: 60,
+})
 const status = ref('')
 const error = ref('')
 
@@ -44,6 +50,14 @@ async function save() {
           <label class="flex flex-col text-sm">
             Timeout (ms)
             <input v-model.number="settings.timeoutMs" type="number" min="50" max="10000" class="w-28 rounded-md border border-border bg-background px-2 py-1" />
+          </label>
+          <label class="flex flex-col text-sm">
+            Default SNMP community
+            <input v-model="settings.snmpCommunity" class="rounded-md border border-border bg-background px-2 py-1" required />
+          </label>
+          <label class="flex flex-col text-sm">
+            Device poll interval (s)
+            <input v-model.number="settings.netPollIntervalSec" type="number" min="10" max="3600" class="w-28 rounded-md border border-border bg-background px-2 py-1" />
           </label>
           <button type="submit" class="rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground">Save</button>
         </form>

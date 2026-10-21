@@ -63,7 +63,7 @@ func (s *Server) ListEndpoints(ctx context.Context, _ *managementv1.ListEndpoint
 }
 
 func (s *Server) AddEndpoint(ctx context.Context, in *managementv1.AddEndpointRequest) (*managementv1.AddEndpointResponse, error) {
-	if err := s.svc.AddEndpoint(ctx, in.GetIp(), in.GetHostname()); err != nil {
+	if err := s.svc.AddEndpoint(ctx, service.AddEndpointInput{IP: in.GetIp(), Hostname: in.GetHostname()}); err != nil {
 		return nil, toStatus(err)
 	}
 	return &managementv1.AddEndpointResponse{Status: "ok"}, nil
@@ -90,7 +90,17 @@ func (s *Server) GetSettings(ctx context.Context, _ *managementv1.GetSettingsReq
 }
 
 func (s *Server) UpdateSettings(ctx context.Context, in *managementv1.Settings) (*managementv1.Settings, error) {
-	st := model.Settings{DefaultCIDR: in.GetDefaultCidr(), AgentPort: int(in.GetAgentPort()), TimeoutMs: int(in.GetTimeoutMs())}
+	current, err := s.svc.GetSettings(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "%v", err)
+	}
+	st := model.Settings{
+		DefaultCIDR:        in.GetDefaultCidr(),
+		AgentPort:          int(in.GetAgentPort()),
+		TimeoutMs:          int(in.GetTimeoutMs()),
+		SnmpCommunity:      current.SnmpCommunity,
+		NetPollIntervalSec: current.NetPollIntervalSec,
+	}
 	saved, err := s.svc.UpdateSettings(ctx, st)
 	if err != nil {
 		return nil, toStatus(err)

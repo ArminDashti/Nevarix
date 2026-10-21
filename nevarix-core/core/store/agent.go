@@ -77,10 +77,10 @@ func (s *Store) IngestAgent(ctx context.Context, p model.AgentSnapshot, historyL
 	}
 
 	if _, err := tx.Exec(ctx, `
-		INSERT INTO agent_metric_points (agent_id, ts, cpu_percent, mem_percent, rx_bps, tx_bps)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO agent_metric_points (agent_id, ts, cpu_percent, mem_percent, rx_bps, tx_bps, details_json)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		ON CONFLICT (agent_id, ts) DO NOTHING
-	`, p.AgentID, collectedAt, p.CPUPercent, p.MemoryUsedPercent, p.BandwidthRxBps, p.BandwidthTxBps); err != nil {
+	`, p.AgentID, collectedAt, p.CPUPercent, p.MemoryUsedPercent, p.BandwidthRxBps, p.BandwidthTxBps, MetricDetailsJSON(p.System)); err != nil {
 		return err
 	}
 
@@ -165,7 +165,7 @@ func (s *Store) LatestAgent(ctx context.Context) (*model.AgentSnapshot, error) {
 // AgentHistory returns ascending samples for one agent.
 func (s *Store) AgentHistory(ctx context.Context, agentID string) ([]model.MetricPoint, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT ts, cpu_percent, mem_percent, rx_bps, tx_bps
+		SELECT ts, cpu_percent, mem_percent, rx_bps, tx_bps, COALESCE(details_json, '{}'::jsonb)
 		FROM agent_metric_points WHERE agent_id = $1 ORDER BY ts ASC
 	`, agentID)
 	if err != nil {
@@ -175,10 +175,12 @@ func (s *Store) AgentHistory(ctx context.Context, agentID string) ([]model.Metri
 	out := []model.MetricPoint{}
 	for rows.Next() {
 		var p model.MetricPoint
-		if err := rows.Scan(&p.Timestamp, &p.CPUPercent, &p.MemPercent, &p.RxBps, &p.TxBps); err != nil {
+		var details []byte
+		if err := rows.Scan(&p.Timestamp, &p.CPUPercent, &p.MemPercent, &p.RxBps, &p.TxBps, &details); err != nil {
 			return nil, err
 		}
 		p.Timestamp = p.Timestamp.UTC()
+		p.Details = details
 		out = append(out, p)
 	}
 	return out, rows.Err()

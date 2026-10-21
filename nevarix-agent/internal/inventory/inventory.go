@@ -102,21 +102,21 @@ func readMotherboard() Motherboard {
 			SerialNumber string `json:"SerialNumber"`
 		}
 		const script = `ConvertTo-Json -Compress -InputObject @(Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer,Product,SerialNumber)`
-		if err := powershellJSON(script, &rows); err != nil || len(rows) == 0 {
+		if err := PowershellJSON(script, &rows); err != nil || len(rows) == 0 {
 			return Motherboard{}
 		}
 		return Motherboard{Vendor: rows[0].Manufacturer, Product: rows[0].Product, Serial: rows[0].SerialNumber}
 	case "linux":
 		return Motherboard{
-			Vendor:  readDMI("board_vendor"),
-			Product: readDMI("board_name"),
-			Serial:  readDMI("board_serial"),
+			Vendor:  ReadDMI("board_vendor"),
+			Product: ReadDMI("board_name"),
+			Serial:  ReadDMI("board_serial"),
 		}
 	}
 	return Motherboard{}
 }
 
-func readDMI(name string) string {
+func ReadDMI(name string) string {
 	raw, err := os.ReadFile("/sys/class/dmi/id/" + name)
 	if err != nil {
 		return ""
@@ -143,7 +143,7 @@ func readFirewall() []FirewallProfile {
 		DefaultInbound  string `json:"DefaultInbound"`
 		DefaultOutbound string `json:"DefaultOutbound"`
 	}
-	if err := powershellJSON(script, &rows); err != nil {
+	if err := PowershellJSON(script, &rows); err != nil {
 		return []FirewallProfile{}
 	}
 	out := make([]FirewallProfile, 0, len(rows))
@@ -173,7 +173,7 @@ func temperatures() []Temperature {
 	return out
 }
 
-func powershellJSON(script string, out any) error {
+func PowershellJSON(script string, out any) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	raw, err := exec.CommandContext(ctx, "powershell", "-NoProfile", "-NonInteractive", "-Command", script).Output()

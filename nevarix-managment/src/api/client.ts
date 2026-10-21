@@ -56,18 +56,46 @@ async function coreJson<T>(path: string, init?: RequestInit): Promise<T> {
 export const core = {
   url: coreUrl('/api/v1'),
   endpoints: () => coreJson<{ endpoints: CoreEndpoint[]; agentError?: string }>('/api/v1/endpoints'),
-  addEndpoint: (ip: string, hostname: string) =>
-    coreJson<{ status: string }>('/api/v1/endpoints', { method: 'POST', body: JSON.stringify({ ip, hostname }) }),
+  addEndpoint: (body: {
+    ip: string
+    hostname?: string
+    agentPort?: number
+    username?: string
+    password?: string
+    verifyAgent?: boolean
+  }) =>
+    coreJson<{ status: string }>('/api/v1/endpoints', { method: 'POST', body: JSON.stringify(body) }),
   scan: (body: { cidr: string; port: number; timeoutMs: number }) =>
     coreJson<{ scanned: number; hits: ScanHit[] }>('/api/v1/scan', { method: 'POST', body: JSON.stringify(body) }),
   settings: () => coreJson<CoreSettings>('/api/v1/settings'),
   saveSettings: (settings: CoreSettings) =>
     coreJson<CoreSettings>('/api/v1/settings', { method: 'PUT', body: JSON.stringify(settings) }),
+  devices: () => coreJson<{ devices: NetDeviceSummary[] }>('/api/v1/devices'),
+  device: (id: string) => coreJson<{ device: NetDevice }>(`/api/v1/devices/${id}`),
+  addDevice: (body: {
+    name?: string
+    mgmtIp: string
+    snmpCommunity?: string
+    pollIntervalSec?: number
+    enabled?: boolean
+    sshUsername?: string
+    sshPassword?: string
+    verifySnmp?: boolean
+  }) => coreJson<{ id: string }>('/api/v1/devices', { method: 'POST', body: JSON.stringify(body) }),
+  scanSnmp: (body: { cidr: string; timeoutMs: number }) =>
+    coreJson<{ scanned: number; hits: SnmpScanHit[] }>('/api/v1/devices/scan', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  deviceInterfaces: (id: string) =>
+    coreJson<{ interfaces: NetInterface[] }>(`/api/v1/devices/${id}/interfaces`),
 }
 
 export type CoreEndpoint = {
   ip?: string
   hostname: string
+  agentPort?: number
+  username?: string
   source: 'scan' | 'agent'
   lastSeenAt?: string
 }
@@ -78,4 +106,39 @@ export type CoreSettings = {
   defaultCidr: string
   agentPort: number
   timeoutMs: number
+  snmpCommunity: string
+  netPollIntervalSec: number
 }
+
+export type NetDeviceSummary = {
+  id: string
+  name: string
+  mgmtIp: string
+  vendor: string
+  enabled: boolean
+  cpuPercent: number
+  memoryUsedPercent: number
+  lastOkAt?: string
+  lastError?: string
+}
+
+export type NetDevice = NetDeviceSummary & {
+  snmpVersion: string
+  snmpCommunity?: string
+  pollIntervalSec: number
+  sysDescr?: string
+  sysObjectId?: string
+  createdAt: string
+}
+
+export type NetInterface = {
+  ifIndex: number
+  name: string
+  operStatus: number
+  speedBps: number
+  rxBps: number
+  txBps: number
+  sampledAt?: string
+}
+
+export type SnmpScanHit = { ip: string; sysDescr: string; vendor: string }

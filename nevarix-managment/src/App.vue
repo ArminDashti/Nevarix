@@ -15,32 +15,44 @@ import { cn } from '@/lib/utils'
 
 const route = useRoute()
 
-const systemChildren = [
+const dashboardChildren = [
+  { to: '/', label: 'Overview' },
   { to: '/cpu', label: 'CPU' },
   { to: '/memory', label: 'Memory' },
+  { to: '/bandwidth', label: 'Network' },
   { to: '/disk', label: 'Disk' },
+]
+
+const systemChildren = [
   { to: '/temperature', label: 'Temperature' },
   { to: '/motherboard', label: 'Motherboard' },
-  { to: '/system', label: 'Overview' },
+  { to: '/system', label: 'System info' },
 ]
 
 const networkChildren = [
-  { to: '/bandwidth', label: 'Bandwidth' },
+  { to: '/devices', label: 'Devices' },
+  { to: '/devices/scan', label: 'SNMP scan' },
   { to: '/endpoints', label: 'Endpoints' },
-  { to: '/endpoints/scan', label: 'Scan' },
+  { to: '/endpoints/scan', label: 'Agent scan' },
 ]
 
-const onSystemRoute = computed(() =>
-  systemChildren.some((c) => route.path === c.to || route.path.startsWith(`${c.to}/`)),
-)
-const onNetworkRoute = computed(() =>
-  networkChildren.some((c) => route.path === c.to || route.path.startsWith(`${c.to}/`)),
-)
+function isNavChildActive(path: string) {
+  if (path === '/') return route.path === '/'
+  return route.path === path || route.path.startsWith(`${path}/`)
+}
 
+const onDashboardRoute = computed(() => dashboardChildren.some((c) => isNavChildActive(c.to)))
+const onSystemRoute = computed(() => systemChildren.some((c) => isNavChildActive(c.to)))
+const onNetworkRoute = computed(() => networkChildren.some((c) => isNavChildActive(c.to)))
+
+const dashboardOpen = ref(onDashboardRoute.value)
 const systemOpen = ref(onSystemRoute.value)
 const networkOpen = ref(onNetworkRoute.value)
 const apiOk = ref<boolean | null>(null)
 
+watch(onDashboardRoute, (v) => {
+  if (v) dashboardOpen.value = true
+})
 watch(onSystemRoute, (v) => {
   if (v) systemOpen.value = true
 })
@@ -93,16 +105,40 @@ onUnmounted(() => {
       </div>
 
       <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
-        <RouterLink to="/" custom v-slot="{ isExactActive, href, navigate }">
-          <a
-            :href="href"
-            :class="navLinkClass(isExactActive)"
-            @click="navigate"
+        <div>
+          <button
+            type="button"
+            :class="navLinkClass(onDashboardRoute, 'md') + ' w-full'"
+            @click="dashboardOpen = !dashboardOpen"
           >
             <Gauge class="h-4 w-4 shrink-0" />
-            Dashboard
-          </a>
-        </RouterLink>
+            <span class="flex-1 text-left">Dashboard</span>
+            <ChevronDown
+              class="h-3.5 w-3.5 shrink-0 transition-transform"
+              :class="dashboardOpen && 'rotate-180'"
+            />
+          </button>
+          <div
+            v-if="dashboardOpen"
+            class="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-border pl-2"
+          >
+            <RouterLink
+              v-for="child in dashboardChildren"
+              :key="child.to"
+              :to="child.to"
+              custom
+              v-slot="{ isActive, href, navigate }"
+            >
+              <a
+                :href="href"
+                :class="navLinkClass(child.to === '/' ? route.path === '/' : isActive, 'sm')"
+                @click="navigate"
+              >
+                {{ child.label }}
+              </a>
+            </RouterLink>
+          </div>
+        </div>
 
         <div>
           <button
