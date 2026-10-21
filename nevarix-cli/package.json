@@ -1,0 +1,13 @@
+{
+  "name": "nevarix-cli",
+  "version": "0.2.0",
+  "description": "Top-level nevarix command (delegates to nvx-core, nvx-agent, nevarix-managment)",
+  "type": "module",
+  "bin": {
+    "nevarix": "./bin/nevarix.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}
