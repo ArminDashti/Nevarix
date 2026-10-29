@@ -41,6 +41,7 @@ func (p *Panel) postDevice(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "device_added", body.Name)
 	c.JSON(http.StatusCreated, gin.H{"id": id})
 }
 
@@ -55,6 +56,7 @@ func (p *Panel) putDevice(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "device_updated", c.Param("deviceId"))
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
@@ -63,6 +65,7 @@ func (p *Panel) deleteDevice(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "device_deleted", c.Param("deviceId"))
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
 
@@ -103,5 +106,6 @@ func (p *Panel) postDeviceScan(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "snmp_scan", body.CIDR)
 	c.JSON(http.StatusOK, gin.H{"scanned": scanned, "hits": hits})
 }

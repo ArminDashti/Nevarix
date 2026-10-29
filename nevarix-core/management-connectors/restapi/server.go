@@ -56,6 +56,10 @@ func (p *Panel) Register(v1 *gin.RouterGroup) {
 	v1.DELETE("/devices/:deviceId", p.deleteDevice)
 	v1.GET("/devices/:deviceId/interfaces", p.getDeviceInterfaces)
 	v1.GET("/devices/:deviceId/history", p.getDeviceHistory)
+
+	v1.GET("/apps", p.getApps)
+	v1.GET("/events", p.getEvents)
+	v1.GET("/actions", p.getActions)
 }
 
 // respondError maps validation failures to 400 and everything else to 500.

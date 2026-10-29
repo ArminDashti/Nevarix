@@ -15,6 +15,9 @@ import FirewallView from '@/views/FirewallView.vue'
 import DevicesView from '@/views/DevicesView.vue'
 import DeviceDetailView from '@/views/DeviceDetailView.vue'
 import DeviceScanView from '@/views/DeviceScanView.vue'
+import AppsView from '@/views/AppsView.vue'
+import EventsView from '@/views/EventsView.vue'
+import ActionsView from '@/views/ActionsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +37,9 @@ const router = createRouter({
     { path: '/motherboard', name: 'motherboard', component: MotherboardView },
     { path: '/temperature', name: 'temperature', component: TemperatureView },
     { path: '/firewall', name: 'firewall', component: FirewallView },
+    { path: '/apps', name: 'apps', component: AppsView },
+    { path: '/events', name: 'events', component: EventsView },
+    { path: '/actions', name: 'actions', component: ActionsView },
     { path: '/settings', name: 'settings', component: SettingsView },
   ],
 })

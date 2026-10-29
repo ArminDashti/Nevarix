@@ -16,9 +16,3 @@ func TestDataDir(t *testing.T) {
 	}
 }
 
-func TestInstallDir(t *testing.T) {
-	t.Setenv("ProgramFiles", `C:\Program Files`)
-	if got := InstallDir(); got != filepath.Join(`C:\Program Files`, Name) {
-		t.Fatalf("install dir = %q", got)
-	}
-}

@@ -18,6 +18,18 @@ cp .env.example .env
 go run ./cmd/agent
 ```
 
+## Install (Windows or Linux)
+
+From the repo root, build the CLI and daemon, then install as an OS service (Administrator on Windows, root on Linux):
+
+```bash
+go build -o bin/nevarix-agent ./cmd/agent    # add .exe on Windows
+go build -o bin/nvx-agent ./cmd/nvx-agent      # add .exe on Windows
+sudo ./bin/nvx-agent install                   # omit sudo on Windows (elevated shell)
+```
+
+Defaults: binaries under `/opt/NevarixAgent` (Linux) or `%ProgramFiles%\NevarixAgent` (Windows); data under `/var/lib/NevarixAgent` or `%LOCALAPPDATA%\NevarixAgent`. The installer sets `NEVARIX_AGENT_DATA_DIR` and `NEVARIX_OUTBOX_PATH`. Set `NEVARIX_AGENT_TOKEN` in the service environment (Windows: machine env + service restart; Linux: `/etc/nevarix-agent/environment`) before the agent can ingest.
+
 ## Environment
 
 | Variable | Default | Description |

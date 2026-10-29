@@ -21,6 +21,8 @@ type AgentSnapshot struct {
 	BandwidthTxBps       float64         `json:"bandwidthTxBps"`
 	UptimeSeconds        uint64          `json:"uptimeSeconds"`
 	System               json.RawMessage `json:"system"`
+	Apps                 []App           `json:"apps,omitempty"`
+	Events               []Event         `json:"events,omitempty"`
 	CollectedAt          time.Time       `json:"collectedAt"`
 }
 
@@ -84,4 +86,29 @@ type Endpoint struct {
 	Username  string    `json:"username,omitempty"`
 	Password  string    `json:"-"`
 	AddedAt   time.Time `json:"addedAt"`
+}
+
+// App is one installed application reported by an agent.
+type App struct {
+	AgentID     string `json:"agentId"`
+	Name        string `json:"name"`
+	Version     string `json:"version,omitempty"`
+	Publisher   string `json:"publisher,omitempty"`
+	InstallDate string `json:"installDate,omitempty"`
+	Source      string `json:"source,omitempty"`
+}
+
+// Event is one occurrence an agent reports (app added/removed, container state change).
+type Event struct {
+	AgentID    string    `json:"agentId"`
+	Kind       string    `json:"kind"`
+	Message    string    `json:"message"`
+	OccurredAt time.Time `json:"occurredAt"`
+}
+
+// Action is one mutating operation performed through the management API.
+type Action struct {
+	Kind      string    `json:"kind"`
+	Detail    string    `json:"detail,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
 }

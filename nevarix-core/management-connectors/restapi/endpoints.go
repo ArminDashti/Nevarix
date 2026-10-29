@@ -40,6 +40,7 @@ func (p *Panel) postEndpoint(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "endpoint_added", body.IP)
 	c.JSON(http.StatusCreated, gin.H{"status": "ok"})
 }
 
@@ -61,6 +62,7 @@ func (p *Panel) postScan(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "agent_scan", body.CIDR)
 	c.JSON(http.StatusOK, gin.H{"scanned": res.Scanned, "hits": res.Hits})
 }
 
@@ -85,5 +87,6 @@ func (p *Panel) putSettings(c *gin.Context) {
 		respondError(c, err)
 		return
 	}
+	p.audit(c, "settings_saved", "")
 	c.JSON(http.StatusOK, saved)
 }

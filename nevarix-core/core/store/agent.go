@@ -34,6 +34,20 @@ func (s *Store) IngestAgent(ctx context.Context, p model.AgentSnapshot, historyL
 	if len(systemJSON) == 0 {
 		systemJSON = []byte("{}")
 	}
+	// Apps/Events ride on the system report; top-level fields win when present.
+	var extra struct {
+		Apps   []model.App   `json:"apps"`
+		Events []model.Event `json:"events"`
+	}
+	_ = json.Unmarshal(systemJSON, &extra)
+	apps := p.Apps
+	if apps == nil {
+		apps = extra.Apps
+	}
+	events := p.Events
+	if events == nil {
+		events = extra.Events
+	}
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
@@ -92,6 +106,33 @@ func (s *Store) IngestAgent(ctx context.Context, p model.AgentSnapshot, historyL
 		  )
 	`, p.AgentID, historyLimit); err != nil {
 		return err
+	}
+
+	// Apps replace the previous set for this agent; a late replay is still a no-op
+	// because the app rows mirror the latest snapshot.
+	if len(apps) > 0 {
+		if _, err := tx.Exec(ctx, `DELETE FROM agent_apps WHERE agent_id = $1`, p.AgentID); err != nil {
+			return err
+		}
+		for _, a := range apps {
+			if _, err := tx.Exec(ctx, `
+				INSERT INTO agent_apps (agent_id, name, version, publisher, install_date, source, updated_at)
+				VALUES ($1, $2, $3, $4, $5, $6, $7)
+			`, p.AgentID, a.Name, a.Version, a.Publisher, a.InstallDate, a.Source, collectedAt); err != nil {
+				return err
+			}
+		}
+	}
+	for _, e := range events {
+		occurred := e.OccurredAt
+		if occurred.IsZero() {
+			occurred = collectedAt
+		}
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO agent_events (agent_id, kind, message, occurred_at) VALUES ($1, $2, $3, $4)
+		`, p.AgentID, e.Kind, e.Message, occurred.UTC()); err != nil {
+			return err
+		}
 	}
 	return tx.Commit(ctx)
 }

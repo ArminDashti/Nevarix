@@ -89,6 +89,9 @@ export const core = {
     }),
   deviceInterfaces: (id: string) =>
     coreJson<{ interfaces: NetInterface[] }>(`/api/v1/devices/${id}/interfaces`),
+  apps: () => coreJson<{ apps: CoreApp[] }>('/api/v1/apps'),
+  events: () => coreJson<{ events: CoreEvent[] }>('/api/v1/events'),
+  actions: () => coreJson<{ actions: CoreAction[] }>('/api/v1/actions'),
 }
 
 export type CoreEndpoint = {
@@ -142,3 +145,25 @@ export type NetInterface = {
 }
 
 export type SnmpScanHit = { ip: string; sysDescr: string; vendor: string }
+
+export type CoreApp = {
+  agentId: string
+  name: string
+  version?: string
+  publisher?: string
+  installDate?: string
+  source?: string
+}
+
+export type CoreEvent = {
+  agentId: string
+  kind: string
+  message: string
+  occurredAt: string
+}
+
+export type CoreAction = {
+  kind: string
+  detail?: string
+  createdAt: string
+}

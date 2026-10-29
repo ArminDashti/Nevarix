@@ -1,64 +1,97 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import {
+  Activity,
   ChevronDown,
   Container,
   Cpu,
   Gauge,
-  Network,
+  HardDrive,
+  Plus,
+  Router,
   Settings,
   Shield,
+  type LucideIcon,
 } from 'lucide-vue-next'
 import { api } from '@/api/client'
+import { core, type CoreEndpoint } from '@/api/client'
 import { cn } from '@/lib/utils'
 
 const route = useRoute()
 
-const dashboardChildren = [
-  { to: '/', label: 'Overview' },
-  { to: '/cpu', label: 'CPU' },
-  { to: '/memory', label: 'Memory' },
-  { to: '/bandwidth', label: 'Network' },
-  { to: '/disk', label: 'Disk' },
-]
-
-const systemChildren = [
-  { to: '/temperature', label: 'Temperature' },
-  { to: '/motherboard', label: 'Motherboard' },
-  { to: '/system', label: 'System info' },
-]
-
-const networkChildren = [
-  { to: '/devices', label: 'Devices' },
-  { to: '/devices/scan', label: 'SNMP scan' },
-  { to: '/endpoints', label: 'Endpoints' },
-  { to: '/endpoints/scan', label: 'Agent scan' },
-]
-
-function isNavChildActive(path: string) {
-  if (path === '/') return route.path === '/'
-  return route.path === path || route.path.startsWith(`${path}/`)
+interface NavGroup {
+  key: string
+  label: string
+  icon: LucideIcon
+  to?: string
+  children?: { to: string; label: string; icon?: LucideIcon }[]
 }
 
-const onDashboardRoute = computed(() => dashboardChildren.some((c) => isNavChildActive(c.to)))
-const onSystemRoute = computed(() => systemChildren.some((c) => isNavChildActive(c.to)))
-const onNetworkRoute = computed(() => networkChildren.some((c) => isNavChildActive(c.to)))
+const navGroups: NavGroup[] = [
+  { key: 'dashboard', label: 'Dashboard', icon: Gauge, to: '/' },
+  {
+    key: 'hardware',
+    label: 'Hardware',
+    icon: Cpu,
+    children: [
+      { to: '/cpu', label: 'CPU', icon: Cpu },
+      { to: '/memory', label: 'Memory' },
+      { to: '/bandwidth', label: 'Network', icon: Router },
+      { to: '/disk', label: 'Disks', icon: HardDrive },
+    ],
+  },
+  {
+    key: 'agent',
+    label: 'Agent',
+    icon: Router,
+    children: [
+      { to: '/devices', label: 'Devices/machines' },
+      { to: '/devices/scan', label: 'Add', icon: Plus },
+    ],
+  },
+  {
+    key: 'system',
+    label: 'System',
+    icon: Settings,
+    children: [
+      { to: '/temperature', label: 'Temperature' },
+      { to: '/motherboard', label: 'Motherboard' },
+      { to: '/system', label: 'System info' },
+    ],
+  },
+  {
+    key: 'activity',
+    label: 'Activity',
+    icon: Activity,
+    children: [
+      { to: '/apps', label: 'Apps' },
+      { to: '/events', label: 'Events' },
+      { to: '/actions', label: 'Actions' },
+    ],
+  },
+]
 
-const dashboardOpen = ref(onDashboardRoute.value)
-const systemOpen = ref(onSystemRoute.value)
-const networkOpen = ref(onNetworkRoute.value)
+function isGroupActive(group: NavGroup) {
+  const paths = group.to ? [group.to] : (group.children ?? []).map((c) => c.to)
+  return paths.some((p) => (p === '/' ? route.path === '/' : route.path === p || route.path.startsWith(`${p}/`)))
+}
+
+const openGroups = ref<Record<string, boolean>>({})
+
+function toggleGroup(key: string) {
+  openGroups.value[key] = !openGroups.value[key]
+}
+
 const apiOk = ref<boolean | null>(null)
+const machines = ref<CoreEndpoint[]>([])
+const machinesError = ref('')
 
-watch(onDashboardRoute, (v) => {
-  if (v) dashboardOpen.value = true
-})
-watch(onSystemRoute, (v) => {
-  if (v) systemOpen.value = true
-})
-watch(onNetworkRoute, (v) => {
-  if (v) networkOpen.value = true
-})
+watch(() => route.path, () => {
+  for (const group of navGroups) {
+    if (isGroupActive(group)) openGroups.value[group.key] = true
+  }
+}, { immediate: true })
 
 function navLinkClass(active: boolean, size: 'sm' | 'md' = 'md') {
   return cn(
@@ -69,6 +102,17 @@ function navLinkClass(active: boolean, size: 'sm' | 'md' = 'md') {
 }
 
 let healthTimer: ReturnType<typeof setInterval> | undefined
+let machinesTimer: ReturnType<typeof setInterval> | undefined
+
+async function loadMachines() {
+  try {
+    const res = await core.endpoints()
+    machines.value = res.endpoints
+    machinesError.value = res.agentError ?? ''
+  } catch (e) {
+    machinesError.value = e instanceof Error ? e.message : 'Failed to load machines'
+  }
+}
 
 async function checkApi() {
   try {
@@ -82,10 +126,13 @@ async function checkApi() {
 onMounted(() => {
   void checkApi()
   healthTimer = setInterval(checkApi, 2000)
+  void loadMachines()
+  machinesTimer = setInterval(loadMachines, 5000)
 })
 
 onUnmounted(() => {
   if (healthTimer) clearInterval(healthTimer)
+  if (machinesTimer) clearInterval(machinesTimer)
 })
 </script>
 
@@ -105,110 +152,59 @@ onUnmounted(() => {
       </div>
 
       <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
-        <div>
-          <button
-            type="button"
-            :class="navLinkClass(onDashboardRoute, 'md') + ' w-full'"
-            @click="dashboardOpen = !dashboardOpen"
+        <template v-for="group in navGroups" :key="group.key">
+          <RouterLink
+            v-if="group.to"
+            :to="group.to"
+            custom
+            v-slot="{ isActive, href, navigate }"
           >
-            <Gauge class="h-4 w-4 shrink-0" />
-            <span class="flex-1 text-left">Dashboard</span>
-            <ChevronDown
-              class="h-3.5 w-3.5 shrink-0 transition-transform"
-              :class="dashboardOpen && 'rotate-180'"
-            />
-          </button>
-          <div
-            v-if="dashboardOpen"
-            class="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-border pl-2"
-          >
-            <RouterLink
-              v-for="child in dashboardChildren"
-              :key="child.to"
-              :to="child.to"
-              custom
-              v-slot="{ isActive, href, navigate }"
-            >
-              <a
-                :href="href"
-                :class="navLinkClass(child.to === '/' ? route.path === '/' : isActive, 'sm')"
-                @click="navigate"
-              >
-                {{ child.label }}
-              </a>
-            </RouterLink>
-          </div>
-        </div>
+            <a :href="href" :class="navLinkClass(isActive)" @click="navigate">
+              <component :is="group.icon" class="h-4 w-4 shrink-0" />
+              {{ group.label }}
+            </a>
+          </RouterLink>
 
-        <div>
-          <button
-            type="button"
-            :class="navLinkClass(onSystemRoute, 'md') + ' w-full'"
-            @click="systemOpen = !systemOpen"
-          >
-            <Cpu class="h-4 w-4 shrink-0" />
-            <span class="flex-1 text-left">System</span>
-            <ChevronDown
-              class="h-3.5 w-3.5 shrink-0 transition-transform"
-              :class="systemOpen && 'rotate-180'"
-            />
-          </button>
-          <div
-            v-if="systemOpen"
-            class="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-border pl-2"
-          >
-            <RouterLink
-              v-for="child in systemChildren"
-              :key="child.to"
-              :to="child.to"
-              custom
-              v-slot="{ isActive, href, navigate }"
+          <div v-else>
+            <button
+              type="button"
+              :class="navLinkClass(isGroupActive(group), 'md') + ' w-full'"
+              @click="toggleGroup(group.key)"
             >
-              <a
-                :href="href"
-                :class="navLinkClass(isActive, 'sm')"
-                @click="navigate"
-              >
-                {{ child.label }}
-              </a>
-            </RouterLink>
-          </div>
-        </div>
-
-        <div>
-          <button
-            type="button"
-            :class="navLinkClass(onNetworkRoute, 'md') + ' w-full'"
-            @click="networkOpen = !networkOpen"
-          >
-            <Network class="h-4 w-4 shrink-0" />
-            <span class="flex-1 text-left">Network</span>
-            <ChevronDown
-              class="h-3.5 w-3.5 shrink-0 transition-transform"
-              :class="networkOpen && 'rotate-180'"
-            />
-          </button>
-          <div
-            v-if="networkOpen"
-            class="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-border pl-2"
-          >
-            <RouterLink
-              v-for="child in networkChildren"
-              :key="child.to"
-              :to="child.to"
-              custom
-              v-slot="{ isActive, href, navigate }"
+              <component :is="group.icon" class="h-4 w-4 shrink-0" />
+              <span class="flex-1 text-left">{{ group.label }}</span>
+              <ChevronDown
+                class="h-3.5 w-3.5 shrink-0 transition-transform"
+                :class="openGroups[group.key] && 'rotate-180'"
+              />
+            </button>
+            <div
+              v-if="openGroups[group.key]"
+              class="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-border pl-2"
             >
-              <a
-                :href="href"
-                :class="navLinkClass(isActive, 'sm')"
-                @click="navigate"
+              <RouterLink
+                v-for="child in group.children"
+                :key="child.to"
+                :to="child.to"
+                custom
+                v-slot="{ isActive, href, navigate }"
               >
-                {{ child.label }}
-              </a>
-            </RouterLink>
+                <a
+                  :href="href"
+                  :class="navLinkClass(isActive, 'sm')"
+                  @click="navigate"
+                >
+                  <component
+                    :is="child.icon"
+                    v-if="child.icon"
+                    class="h-3.5 w-3.5 shrink-0"
+                  />
+                  {{ child.label }}
+                </a>
+              </RouterLink>
+            </div>
           </div>
-        </div>
+        </template>
 
         <RouterLink to="/docker" custom v-slot="{ isActive, href, navigate }">
           <a :href="href" :class="navLinkClass(isActive)" @click="navigate">
@@ -241,6 +237,35 @@ onUnmounted(() => {
           {{ apiOk ? 'nevarix-api connected' : apiOk === false ? 'waiting for nevarix-api' : 'checking api…' }}
         </div>
         Created by Armin Dashti
+      </div>
+    </aside>
+
+    <aside class="flex w-60 shrink-0 flex-col border-r border-border bg-card/50">
+      <div class="border-b border-border px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        Machines
+      </div>
+      <div class="flex-1 overflow-y-auto p-2">
+        <div v-if="machinesError" class="px-2 py-1 text-xs text-destructive">{{ machinesError }}</div>
+        <div v-else-if="machines.length === 0" class="px-2 py-1 text-xs text-muted-foreground">
+          No machines reported by agents
+        </div>
+        <RouterLink
+          v-for="m in machines"
+          :key="m.hostname + (m.ip ?? '')"
+          to="/endpoints"
+          custom
+          v-slot="{ href, navigate, isActive }"
+        >
+          <a
+            :href="href"
+            :class="navLinkClass(isActive, 'sm')"
+            class="block"
+            @click="navigate"
+          >
+            <div class="truncate font-medium">{{ m.hostname }}</div>
+            <div class="truncate text-[11px] text-muted-foreground">{{ m.ip ?? 'unknown ip' }}</div>
+          </a>
+        </RouterLink>
       </div>
     </aside>
 

@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -89,10 +91,10 @@ func cmdRebuild(_ []string) error {
 		return nil
 	}
 	ldflags := "-X main.version=" + version
-	if err := runTool("go", "build", "-o", "bin/nevarix-agent.exe", "./cmd/agent"); err != nil {
+	if err := runTool("go", "build", "-o", binPath("nevarix-agent"), "./cmd/agent"); err != nil {
 		return err
 	}
-	return runTool("go", "build", "-ldflags", ldflags, "-o", "bin/nvx-agent.exe", "./cmd/nvx-agent")
+	return runTool("go", "build", "-ldflags", ldflags, "-o", binPath("nvx-agent"), "./cmd/nvx-agent")
 }
 
 func cmdUninstall(_ []string) error {
@@ -308,4 +310,11 @@ func runTool(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout, cmd.Stderr = os.Stdout, os.Stderr
 	return cmd.Run()
+}
+
+func binPath(base string) string {
+	if runtime.GOOS == "windows" {
+		return filepath.Join("bin", base+".exe")
+	}
+	return filepath.Join("bin", base)
 }

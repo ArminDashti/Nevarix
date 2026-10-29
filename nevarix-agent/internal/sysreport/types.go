@@ -7,7 +7,22 @@ import (
 	"github.com/ArminDashti/nevarix-agent/internal/inventory"
 )
 
-const SchemaVersion = 2
+const SchemaVersion = 3
+
+// Apps/Events ride on the report so core can extract them at ingest.
+type AppInfo struct {
+	Name        string `json:"name"`
+	Version     string `json:"version,omitempty"`
+	Publisher   string `json:"publisher,omitempty"`
+	InstallDate string `json:"installDate,omitempty"`
+	Source      string `json:"source,omitempty"`
+}
+
+type EventInfo struct {
+	Kind       string    `json:"kind"`
+	Message    string    `json:"message,omitempty"`
+	OccurredAt time.Time `json:"occurredAt"`
+}
 
 // History keys: cpu, memory, nic:<name>, disk:<id>, docker:<containerId>
 const (
@@ -32,28 +47,30 @@ type Sample struct {
 }
 
 type Report struct {
-	SchemaVersion   int                      `json:"schemaVersion"`
-	OS              string                   `json:"os"`
-	Platform        string                   `json:"platform"`
-	PlatformVersion string                   `json:"platformVersion"`
-	KernelVersion   string                   `json:"kernelVersion"`
-	Arch            string                   `json:"arch"`
-	CPU             CPUReport                `json:"cpu"`
-	Memory          MemoryReport             `json:"memory"`
-	Storage         StorageReport            `json:"storage"`
-	Motherboard     MotherboardReport        `json:"motherboard"`
-	Network         NetworkReport            `json:"network"`
-	Docker          DockerReport             `json:"docker"`
-	Hardware        HardwareReport           `json:"hardware"`
+	SchemaVersion   int                         `json:"schemaVersion"`
+	OS              string                      `json:"os"`
+	Platform        string                      `json:"platform"`
+	PlatformVersion string                      `json:"platformVersion"`
+	KernelVersion   string                      `json:"kernelVersion"`
+	Arch            string                      `json:"arch"`
+	CPU             CPUReport                   `json:"cpu"`
+	Memory          MemoryReport                `json:"memory"`
+	Storage         StorageReport               `json:"storage"`
+	Motherboard     MotherboardReport           `json:"motherboard"`
+	Network         NetworkReport               `json:"network"`
+	Docker          DockerReport                `json:"docker"`
+	Hardware        HardwareReport              `json:"hardware"`
 	Firewall        []inventory.FirewallProfile `json:"firewall"`
-	Temperatures    []inventory.Temperature  `json:"temperatures"`
+	Temperatures    []inventory.Temperature     `json:"temperatures"`
+	Apps            []AppInfo                   `json:"apps,omitempty"`
+	Events          []EventInfo                 `json:"events,omitempty"`
 }
 
 type CPUReport struct {
-	Info         CPUInfo   `json:"info"`
+	Info         CPUInfo    `json:"info"`
 	Current      CPUCurrent `json:"current"`
-	History      []Sample  `json:"history"`
-	TemperatureC *float64  `json:"temperatureC"`
+	History      []Sample   `json:"history"`
+	TemperatureC *float64   `json:"temperatureC"`
 }
 
 type CPUInfo struct {
@@ -76,10 +93,10 @@ type CoreSample struct {
 }
 
 type MemoryReport struct {
-	Info         MemoryInfo `json:"info"`
+	Info         MemoryInfo    `json:"info"`
 	Current      MemoryCurrent `json:"current"`
-	History      []Sample   `json:"history"`
-	TemperatureC *float64   `json:"temperatureC"`
+	History      []Sample      `json:"history"`
+	TemperatureC *float64      `json:"temperatureC"`
 }
 
 type MemoryInfo struct {
@@ -88,12 +105,12 @@ type MemoryInfo struct {
 }
 
 type DIMM struct {
-	Slot           string `json:"slot,omitempty"`
-	Manufacturer   string `json:"manufacturer,omitempty"`
-	PartNumber     string `json:"partNumber,omitempty"`
-	Serial         string `json:"serial,omitempty"`
-	SizeBytes      uint64 `json:"sizeBytes"`
-	SpeedMHz       uint32 `json:"speedMhz,omitempty"`
+	Slot         string `json:"slot,omitempty"`
+	Manufacturer string `json:"manufacturer,omitempty"`
+	PartNumber   string `json:"partNumber,omitempty"`
+	Serial       string `json:"serial,omitempty"`
+	SizeBytes    uint64 `json:"sizeBytes"`
+	SpeedMHz     uint32 `json:"speedMhz,omitempty"`
 }
 
 type MemoryCurrent struct {
@@ -164,18 +181,18 @@ type DockerInfo struct {
 }
 
 type DockerContainer struct {
-	ID           string   `json:"id"`
-	Name         string   `json:"name"`
-	Image        string   `json:"image"`
-	State        string   `json:"state"`
-	CPUPercent   float64  `json:"cpuPercent"`
-	MemoryBytes  uint64   `json:"memoryBytes"`
-	RxBps        float64  `json:"rxBps"`
-	TxBps        float64  `json:"txBps"`
-	ReadBps      float64  `json:"readBps"`
-	WriteBps     float64  `json:"writeBps"`
-	DiskBytes    uint64   `json:"diskBytes"`
-	History      []Sample `json:"history"`
+	ID          string   `json:"id"`
+	Name        string   `json:"name"`
+	Image       string   `json:"image"`
+	State       string   `json:"state"`
+	CPUPercent  float64  `json:"cpuPercent"`
+	MemoryBytes uint64   `json:"memoryBytes"`
+	RxBps       float64  `json:"rxBps"`
+	TxBps       float64  `json:"txBps"`
+	ReadBps     float64  `json:"readBps"`
+	WriteBps    float64  `json:"writeBps"`
+	DiskBytes   uint64   `json:"diskBytes"`
+	History     []Sample `json:"history"`
 }
 
 type DockerImage struct {

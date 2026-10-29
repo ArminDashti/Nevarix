@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/ArminDashti/nevarix-agent/internal/apps"
 	"github.com/ArminDashti/nevarix-agent/internal/dockermetrics"
 	"github.com/ArminDashti/nevarix-agent/internal/hardware"
 	"github.com/ArminDashti/nevarix-agent/internal/history"
@@ -46,14 +47,15 @@ type Snapshot struct {
 }
 
 type Collector struct {
-	agentID    string
-	hostname   string
-	dockerMax  int
-	inv        *inventory.Collector
-	nics       *nics.Collector
-	storage    *storage.Collector
-	hw         *hardware.Collector
-	hist       *history.Store
+	agentID   string
+	hostname  string
+	dockerMax int
+	inv       *inventory.Collector
+	nics      *nics.Collector
+	storage   *storage.Collector
+	hw        *hardware.Collector
+	hist      *history.Store
+	apps      *apps.Collector
 }
 
 func New(agentID, hostname string, historyPoints, dockerMax int) *Collector {
@@ -66,6 +68,7 @@ func New(agentID, hostname string, historyPoints, dockerMax int) *Collector {
 		storage:   storage.New(),
 		hw:        hardware.New(),
 		hist:      history.New(historyPoints),
+		apps:      apps.New(),
 	}
 }
 
@@ -150,6 +153,8 @@ func (c *Collector) Collect() (Snapshot, error) {
 	logical, _ := cpu.Counts(true)
 	cpuInfo.Logical = logical
 
+	appList, appEvents := c.apps.Collect()
+
 	report := sysreport.Report{
 		SchemaVersion:   sysreport.SchemaVersion,
 		OS:              base.OS,
@@ -181,6 +186,8 @@ func (c *Collector) Collect() (Snapshot, error) {
 		Hardware:     hw,
 		Firewall:     base.Firewall,
 		Temperatures: base.Temperatures,
+		Apps:         appList,
+		Events:       appEvents,
 	}
 
 	return Snapshot{
