@@ -43,12 +43,12 @@ func (s *Store) ListEvents(ctx context.Context, agentID string, limit int) ([]mo
 	query := `
 		SELECT agent_id, kind, message, occurred_at
 		FROM agent_events`
-	args := []any{limit}
+	args := []any{}
 	if agentID != "" {
 		query += ` WHERE agent_id = $1`
 		args = append(args, agentID)
 	}
-	query += ` ORDER BY occurred_at DESC, id DESC LIMIT ` + strconv.Itoa(len(args))
+	query += ` ORDER BY occurred_at DESC, id DESC LIMIT ` + strconv.Itoa(limit)
 	rows, err := s.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
