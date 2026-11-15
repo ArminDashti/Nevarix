@@ -135,3 +135,11 @@ unverified) or skip it. This keeps confident guesses out.
 - `nevarix-core/docker-compose.local.yml` mounts `../nevarix-managment:/app` for the dashboard.
 - Storage split: Agent and Managment use SQLite; Hub uses PostgreSQL. Agent SQLite only buffers placeholder data until the Hub confirms it is stored.
 - `nevarix-agent` (Go, under `nevarix/nevarix-agent`) has no CLI subcommands. It is configured only by environment variables: `NEVARIX_API_URL`, `NEVARIX_AGENT_TOKEN` (required, value never stored in docs), `NEVARIX_AGENT_ID`, `NEVARIX_HOSTNAME`, `COLLECT_INTERVAL_SECONDS`.
+
+## Git workflow (required)
+
+After any change, always:
+1. Commit the change on a new branch and push it to GitHub (`origin`).
+2. Create a pull request for it.
+3. Merge the pull request into the `main` branch.
+4. Make sure everything is committed and pushed to GitHub, and that local `main` is pulled and in sync with `origin/main`.
