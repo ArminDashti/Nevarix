@@ -146,7 +146,8 @@ func marshalOr[T any](v []T, empty string) ([]byte, error) {
 
 func (s *Store) ListAgents(ctx context.Context) ([]model.AgentSummary, error) {
 	rows, err := s.pool.Query(ctx, `
-		SELECT h.agent_id, h.hostname, COALESCE(l.cpu_percent, 0), COALESCE(l.memory_used_percent, 0), h.last_seen_at
+		SELECT h.agent_id, h.hostname, COALESCE(l.cpu_percent, 0), COALESCE(l.memory_used_percent, 0), h.last_seen_at,
+		       COALESCE(l.disks_json, '[]'::jsonb), COALESCE(l.system_json, '{}'::jsonb), COALESCE(l.collected_at, h.last_seen_at)
 		FROM agent_hosts h
 		LEFT JOIN agent_metric_latest l ON l.agent_id = h.agent_id
 		ORDER BY h.last_seen_at DESC
@@ -155,16 +156,46 @@ func (s *Store) ListAgents(ctx context.Context) ([]model.AgentSummary, error) {
 		return nil, err
 	}
 	defer rows.Close()
+	now := time.Now().UTC()
 	out := []model.AgentSummary{}
 	for rows.Next() {
 		var a model.AgentSummary
-		if err := rows.Scan(&a.AgentID, &a.Hostname, &a.CPUPercent, &a.MemoryUsedPercent, &a.LastSeenAt); err != nil {
+		var disksRaw, systemRaw []byte
+		if err := rows.Scan(&a.AgentID, &a.Hostname, &a.CPUPercent, &a.MemoryUsedPercent, &a.LastSeenAt, &disksRaw, &systemRaw, &a.CollectedAt); err != nil {
 			return nil, err
 		}
 		a.LastSeenAt = a.LastSeenAt.UTC()
+		a.CollectedAt = a.CollectedAt.UTC()
+		fillAgentGrid(&a, disksRaw, systemRaw, now)
 		out = append(out, a)
 	}
 	return out, rows.Err()
+}
+
+// DeleteAgent removes the host row. Metric tables cascade; apps and events do not.
+func (s *Store) DeleteAgent(ctx context.Context, agentID string) error {
+	if agentID == "" {
+		return errors.New("agentId is required")
+	}
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+	if _, err := tx.Exec(ctx, `DELETE FROM agent_apps WHERE agent_id = $1`, agentID); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx, `DELETE FROM agent_events WHERE agent_id = $1`, agentID); err != nil {
+		return err
+	}
+	tag, err := tx.Exec(ctx, `DELETE FROM agent_hosts WHERE agent_id = $1`, agentID)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		return errors.New("agent not found")
+	}
+	return tx.Commit(ctx)
 }
 
 // LatestAgent returns the most recently seen agent's latest snapshot, or nil when none exist.

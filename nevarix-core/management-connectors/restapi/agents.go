@@ -34,6 +34,23 @@ func (p *Panel) getAgents(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"agents": agents})
 }
 
+func (p *Panel) deleteAgent(c *gin.Context) {
+	if err := p.store.DeleteAgent(c.Request.Context(), c.Param("agentId")); err != nil {
+		if err.Error() == "agent not found" {
+			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+		respondError(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "deleted"})
+}
+
+// Restart and shutdown need a command channel on the agent. Health is the only agent route today.
+func (p *Panel) agentCommandUnavailable(c *gin.Context) {
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "agent command channel is not available"})
+}
+
 // getLatestAgent returns {"agent": null} when no agent has reported yet.
 func (p *Panel) getLatestAgent(c *gin.Context) {
 	latest, err := p.store.LatestAgent(c.Request.Context())

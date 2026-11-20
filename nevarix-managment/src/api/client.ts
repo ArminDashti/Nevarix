@@ -14,24 +14,6 @@ async function getJson<T>(path: string): Promise<T> {
 
 export const api = {
   dashboard: () => getJson<Record<string, unknown>>('/api/v1/dashboard'),
-  cpu: () => getJson<Record<string, unknown>>('/api/v1/cpu'),
-  memory: () => getJson<Record<string, unknown>>('/api/v1/memory'),
-  disk: () => getJson<Record<string, unknown>>('/api/v1/disk'),
-  bandwidth: () => getJson<Record<string, unknown>>('/api/v1/bandwidth'),
-  dockerImages: () => getJson<{ images: unknown[]; error?: string }>('/api/v1/docker/images'),
-  dockerContainers: () => getJson<{ stacks: unknown[]; error?: string }>('/api/v1/docker/containers'),
-  system: () => getJson<{ hostname: string; system: SystemInfo | null }>('/api/v1/system'),
-}
-
-export type SystemInfo = {
-  os: string
-  platform: string
-  platformVersion: string
-  kernelVersion: string
-  arch: string
-  motherboard: { vendor: string; product: string; serial: string }
-  firewall: { name: string; enabled: boolean; defaultInbound: string; defaultOutbound: string }[]
-  temperatures: { sensor: string; celsius: number }[]
 }
 
 // nevarix-core panel routes live on the same /api/v1 prefix as metrics (Vite/nginx proxy in dev).
@@ -67,6 +49,10 @@ export const core = {
     coreJson<{ status: string }>('/api/v1/endpoints', { method: 'POST', body: JSON.stringify(body) }),
   scan: (body: { cidr: string; port: number; timeoutMs: number }) =>
     coreJson<{ scanned: number; hits: ScanHit[] }>('/api/v1/scan', { method: 'POST', body: JSON.stringify(body) }),
+  agents: () => coreJson<{ agents: AgentSummary[] }>('/api/v1/agents'),
+  deleteAgent: (id: string) => coreJson<{ status: string }>(`/api/v1/agents/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  agentAction: (id: string, action: 'restart' | 'shutdown') =>
+    coreJson<{ status: string }>(`/api/v1/agents/${encodeURIComponent(id)}/${action}`, { method: 'POST', body: '{}' }),
   settings: () => coreJson<CoreSettings>('/api/v1/settings'),
   saveSettings: (settings: CoreSettings) =>
     coreJson<CoreSettings>('/api/v1/settings', { method: 'PUT', body: JSON.stringify(settings) }),
@@ -89,9 +75,21 @@ export const core = {
     }),
   deviceInterfaces: (id: string) =>
     coreJson<{ interfaces: NetInterface[] }>(`/api/v1/devices/${id}/interfaces`),
-  apps: () => coreJson<{ apps: CoreApp[] }>('/api/v1/apps'),
-  events: () => coreJson<{ events: CoreEvent[] }>('/api/v1/events'),
-  actions: () => coreJson<{ actions: CoreAction[] }>('/api/v1/actions'),
+}
+
+export type AgentSummary = {
+  agentId: string
+  hostname: string
+  cpuPercent: number
+  memoryUsedPercent: number
+  lastSeenAt: string
+  status: 'connected' | 'unstable' | 'disconnected'
+  disks: string
+  os: string
+  ip: string
+  latencyMs?: number
+  description: string
+  collectedAt: string
 }
 
 export type CoreEndpoint = {
@@ -145,25 +143,3 @@ export type NetInterface = {
 }
 
 export type SnmpScanHit = { ip: string; sysDescr: string; vendor: string }
-
-export type CoreApp = {
-  agentId: string
-  name: string
-  version?: string
-  publisher?: string
-  installDate?: string
-  source?: string
-}
-
-export type CoreEvent = {
-  agentId: string
-  kind: string
-  message: string
-  occurredAt: string
-}
-
-export type CoreAction = {
-  kind: string
-  detail?: string
-  createdAt: string
-}

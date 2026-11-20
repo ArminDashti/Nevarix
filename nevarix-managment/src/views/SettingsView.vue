@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { core, type CoreSettings } from '@/api/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { loadAgentIdFormat, saveAgentIdFormat, type AgentIdFormat } from '@/lib/agentIdFormat'
 
 const settings = ref<CoreSettings>({
   defaultCidr: '',
@@ -12,6 +13,13 @@ const settings = ref<CoreSettings>({
 })
 const status = ref('')
 const error = ref('')
+const idFormat = ref<AgentIdFormat>(loadAgentIdFormat())
+
+function saveIdFormat() {
+  saveAgentIdFormat(idFormat.value)
+  window.dispatchEvent(new Event('nevarix-agent-id-format'))
+  status.value = 'Saved'
+}
 
 onMounted(async () => {
   try {
@@ -63,6 +71,19 @@ async function save() {
         </form>
         <p v-if="status" class="mt-3 text-sm text-muted-foreground">{{ status }}</p>
         <p v-if="error" class="mt-3 text-sm text-destructive">{{ error }}</p>
+      </CardContent>
+    </Card>
+    <Card>
+      <CardHeader><CardTitle>Agent ID</CardTitle></CardHeader>
+      <CardContent>
+        <label class="flex flex-col text-sm">
+          ID format
+          <select v-model="idFormat" class="mt-1 w-56 rounded-md border border-border bg-background px-2 py-1" @change="saveIdFormat">
+            <option value="full">Full</option>
+            <option value="short">First 8 characters</option>
+            <option value="upper">Uppercase</option>
+          </select>
+        </label>
       </CardContent>
     </Card>
     <Card>

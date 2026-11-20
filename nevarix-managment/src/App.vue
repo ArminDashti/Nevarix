@@ -2,16 +2,10 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import {
-  Activity,
   ChevronDown,
-  Container,
-  Cpu,
   Gauge,
-  HardDrive,
-  Plus,
   Router,
   Settings,
-  Shield,
   type LucideIcon,
 } from 'lucide-vue-next'
 import { api } from '@/api/client'
@@ -29,47 +23,8 @@ interface NavGroup {
 }
 
 const navGroups: NavGroup[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: Gauge, to: '/' },
-  {
-    key: 'hardware',
-    label: 'Hardware',
-    icon: Cpu,
-    children: [
-      { to: '/cpu', label: 'CPU', icon: Cpu },
-      { to: '/memory', label: 'Memory' },
-      { to: '/bandwidth', label: 'Network', icon: Router },
-      { to: '/disk', label: 'Disks', icon: HardDrive },
-    ],
-  },
-  {
-    key: 'agent',
-    label: 'Agent',
-    icon: Router,
-    children: [
-      { to: '/devices', label: 'Devices/machines' },
-      { to: '/devices/scan', label: 'Add', icon: Plus },
-    ],
-  },
-  {
-    key: 'system',
-    label: 'System',
-    icon: Settings,
-    children: [
-      { to: '/temperature', label: 'Temperature' },
-      { to: '/motherboard', label: 'Motherboard' },
-      { to: '/system', label: 'System info' },
-    ],
-  },
-  {
-    key: 'activity',
-    label: 'Activity',
-    icon: Activity,
-    children: [
-      { to: '/apps', label: 'Apps' },
-      { to: '/events', label: 'Events' },
-      { to: '/actions', label: 'Actions' },
-    ],
-  },
+  { key: 'dashboard', label: 'Overview', icon: Gauge, to: '/' },
+  { key: 'agent', label: 'Agents', icon: Router, to: '/agents' },
 ]
 
 function isGroupActive(group: NavGroup) {
@@ -205,20 +160,6 @@ onUnmounted(() => {
             </div>
           </div>
         </template>
-
-        <RouterLink to="/docker" custom v-slot="{ isActive, href, navigate }">
-          <a :href="href" :class="navLinkClass(isActive)" @click="navigate">
-            <Container class="h-4 w-4 shrink-0" />
-            Docker
-          </a>
-        </RouterLink>
-
-        <RouterLink to="/firewall" custom v-slot="{ isActive, href, navigate }">
-          <a :href="href" :class="navLinkClass(isActive)" @click="navigate">
-            <Shield class="h-4 w-4 shrink-0" />
-            Firewall
-          </a>
-        </RouterLink>
 
         <RouterLink to="/settings" custom v-slot="{ isActive, href, navigate }">
           <a :href="href" :class="navLinkClass(isActive)" @click="navigate">

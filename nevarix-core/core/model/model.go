@@ -46,6 +46,14 @@ type AgentSummary struct {
 	CPUPercent        float64   `json:"cpuPercent"`
 	MemoryUsedPercent float64   `json:"memoryUsedPercent"`
 	LastSeenAt        time.Time `json:"lastSeenAt"`
+	// Grid fields filled from the latest snapshot. LatencyMs stays unset until core measures RTT.
+	Status      string    `json:"status"`
+	Disks       string    `json:"disks"`
+	OS          string    `json:"os"`
+	IP          string    `json:"ip"`
+	LatencyMs   *int      `json:"latencyMs,omitempty"`
+	Description string    `json:"description"`
+	CollectedAt time.Time `json:"collectedAt"`
 }
 
 // MetricPoint is one agent history sample; the same row feeds CPU, memory and bandwidth charts.
